@@ -21,6 +21,7 @@ padding = 5
 increment = 75
 running = True
 clicked_square = {}
+font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
 
 while running:
     # poll for events
@@ -31,7 +32,8 @@ while running:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
                 clicked_square = {"x": event.pos[0], "y": event.pos[1]}
-                print(clicked_square["x"])
+                #print(clicked_square["x"])
+                #print(pygame.font.get_fonts())
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((102,51, 0))
@@ -50,11 +52,10 @@ while running:
             if not clicked_square:
                 a = 0
             elif (x <= clicked_square["x"] <= x+increment and y <= clicked_square["y"] <= y+increment ): # check if current square is clicked ... 
-                print(f"highlighted square between {x} and {x+increment}") 
-                print(f"highlighted square between {y} and {y+increment}") 
-                pygame.draw.rect(screen, color, pygame.Rect(x, y, increment, increment))
                 pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
+                king = font.render("♚", True, (0, 255, 0))
+                screen.blit(king, (x + 10, y))
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    clock.tick(2)  # limits FPS to 60
+    clock.tick(60)  # limits FPS to 60
