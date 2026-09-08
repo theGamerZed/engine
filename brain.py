@@ -1,16 +1,9 @@
-# Example file showing a basic pygame "game loop"
 import pygame
+import pieces
 from cmath import rect
 from turtle import color
 
-class box:
-    def __init__(self,name,id):
-        self.name = name  
-        self.id = id
-
-    def identify(self):
-        return f"{self.name} (ID: {self.id})"
-# pygame setup
+# Global variables
 pygame.init()
 screen = pygame.display.set_mode((1280, 720))
 clock = pygame.time.Clock()
@@ -29,32 +22,49 @@ def initial_player_pieces(color,player):
         x = initial_x 
         pawn_rank  = initial_y + increment
         piece_rank = initial_y
+
+        rook_1 = pieces.chess_piece("White_Rook", "♜", (color), player, font)
+        knight_1 = pieces.chess_piece("White_Knight", "♞", (color), player, font)
+        bishop_1 = pieces.chess_piece("White_Bishop", "♝", (color), player, font)
+        queen = pieces.chess_piece("White_Queen", "♛", (color), player, font)
+        king = pieces.chess_piece("White_King", "♚", (color), player, font)
+        bishop_2 = pieces.chess_piece("White_Bishop", "♝", (color), player, font)
+        knight_2 = pieces.chess_piece("White_Knight", "♞", (color), player, font)
+        rook_2 = pieces.chess_piece("White_Rook", "♜", (color), player, font)
+        screen.blit(rook_1.render_piece(font), (x + 10, piece_rank))
+        screen.blit(knight_1.render_piece(font), (x + 85, piece_rank))
+        screen.blit(bishop_1.render_piece(font), (x + 160, piece_rank))
+        screen.blit(queen.render_piece(font), (x + 235, piece_rank))
+        screen.blit(king.render_piece(font), (x + 310, piece_rank))
+        screen.blit(bishop_2.render_piece(font), (x + 385, piece_rank))
+        screen.blit(knight_2.render_piece(font), (x + 460, piece_rank))
+        screen.blit(rook_2.render_piece(font), (x + 535, piece_rank))
     elif player == 2:
         x = initial_x
         pawn_rank  = board_width - increment
         piece_rank = board_width
 
-    rook_1 = font.render("♜", True, (color))
-    knight_1 = font.render("♞", True, (color))
-    bishop_1 = font.render("♝", True, (color))
-    queen = font.render("♛", True, (color))
-    king = font.render("♚", True, (color))
-    bishop_2 = font.render("♝", True, (color))
-    knight_2 = font.render("♞", True, (color))
-    rook_2 = font.render("♜", True, (color))
-    screen.blit(rook_1, (x + 10, piece_rank))
-    screen.blit(knight_1, (x + 85, piece_rank))
-    screen.blit(bishop_1, (x + 160, piece_rank))
-    screen.blit(queen, (x + 235, piece_rank))
-    screen.blit(king, (x + 310, piece_rank))
-    screen.blit(bishop_2, (x + 385, piece_rank))
-    screen.blit(knight_2, (x + 460, piece_rank))
-    screen.blit(rook_2, (x + 535, piece_rank))
+        rook_1 = pieces.chess_piece("Black_Rook", "♜", (color), player, font)
+        knight_1 = pieces.chess_piece("Black_Knight", "♞", (color), player, font)
+        bishop_1 = pieces.chess_piece("Black_Bishop", "♝", (color), player, font)
+        queen = pieces.chess_piece("Black_Queen", "♛", (color), player, font)
+        king = pieces.chess_piece("Black_King", "♚", (color), player, font)
+        bishop_2 = pieces.chess_piece("Black_Bishop", "♝", (color), player, font)
+        knight_2 = pieces.chess_piece("Black_Knight", "♞", (color), player, font)
+        rook_2 = pieces.chess_piece("Black_Rook", "♜", (color), player, font)
+        screen.blit(rook_1.render_piece(font), (x + 10, piece_rank))
+        screen.blit(knight_1.render_piece(font), (x + 85, piece_rank))
+        screen.blit(bishop_1.render_piece(font), (x + 160, piece_rank))
+        screen.blit(queen.render_piece(font), (x + 235, piece_rank))
+        screen.blit(king.render_piece(font), (x + 310, piece_rank))
+        screen.blit(bishop_2.render_piece(font), (x + 385, piece_rank))
+        screen.blit(knight_2.render_piece(font), (x + 460, piece_rank))
+        screen.blit(rook_2.render_piece(font), (x + 535, piece_rank))
 
     
     for x in range(initial_x, initial_x + board_width, increment):
-        pawn = font.render("♟", True, color)
-        screen.blit(pawn, (x + 10, pawn_rank))
+        pawn = pieces.chess_piece("Black_Pawn", "♟", (color), player, font)
+        screen.blit(pawn.render_piece(font), (x + 10, pawn_rank))
 
     
     
