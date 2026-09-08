@@ -120,12 +120,16 @@ while running:
                 pygame.Rect(x, y, increment, increment)
             )
 
-    # Pieces
+            if not clicked_square: 
+                a = 0 
+            elif (x <= clicked_square["x"] <= x+increment and y <= clicked_square["y"] <= y+increment ): # check if current square is clicked ... 
+                pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
+        # Pieces
     player_1_pieces = initial_player_pieces(player_1_color, player_1)
     player_2_pieces = initial_player_pieces(player_2_color, player_2)
 
-    print(player_1_pieces[0].name)
-    print(player_2_pieces)
+    # print(player_1_pieces[0].name)
+    # print(player_2_pieces)
     # flip() the display to put your work on screen
     pygame.display.flip()
-    clock.tick(1)  # limits FPS to 60
+    clock.tick(10)  # limits FPS to 60
