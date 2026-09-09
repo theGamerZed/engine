@@ -1,3 +1,4 @@
+from position import determine_square
 import pygame
 import pieces
 from cmath import rect
@@ -124,6 +125,10 @@ while running:
                 a = 0 
             elif (x <= clicked_square["x"] <= x+increment and y <= clicked_square["y"] <= y+increment ): # check if current square is clicked ... 
                 pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
+                normal_x = clicked_square["x"] - initial_x #normalize the clicked square coordinates to the board's coordinate system
+                normal_y = clicked_square["y"] - initial_y #same here!!!!
+                #print(normal_x, normal_y, clicked_square["y"])
+                determine_square(normal_x, normal_y)
         # Pieces
     player_1_pieces = initial_player_pieces(player_1_color, player_1)
     player_2_pieces = initial_player_pieces(player_2_color, player_2)
