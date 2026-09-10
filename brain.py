@@ -22,44 +22,44 @@ clicked_square = {}
 def initial_player_pieces(color,player):
     all_player_pieces = []
     if player == 2:
-        rook_1 = pieces.chess_piece("black_Rook", "♜", (color), player, font, screen, "A", "8")
+        rook_1 = pieces.chess_piece("black_Rook", "♜", (color), player, "A", "8")
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("black_Knight", "♞", (color), player, font, screen, "B", "8")
+        knight_1 = pieces.chess_piece("black_Knight", "♞", (color), player, "B", "8")
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("black_Bishop", "♝", (color), player, font, screen, "C", "8")
+        bishop_1 = pieces.chess_piece("black_Bishop", "♝", (color), player, "C", "8")
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("black_Queen", "♛", (color), player, font, screen, "D", "8")
+        queen = pieces.chess_piece("black_Queen", "♛", (color), player, "D", "8")
         all_player_pieces.append(queen)
-        king = pieces.chess_piece("black_King", "♚", (color), player, font, screen, "E", "8")
+        king = pieces.chess_piece("black_King", "♚", (color), player, "E", "8")
         all_player_pieces.append(king)
-        bishop_2 = pieces.chess_piece("black_Bishop", "♝", (color), player, font, screen, "F", "8")
+        bishop_2 = pieces.chess_piece("black_Bishop", "♝", (color), player, "F", "8")
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("black_Knight", "♞", (color), player, font, screen, "G", "8")
+        knight_2 = pieces.chess_piece("black_Knight", "♞", (color), player, "G", "8")
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("black_Rook", "♜", (color), player, font, screen, "H", "8")
+        rook_2 = pieces.chess_piece("black_Rook", "♜", (color), player, "H", "8")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = pieces.chess_piece("black_Pawn", "♟", (color), player, font, screen, Files[file], "7")
+            pawn = pieces.chess_piece("black_Pawn", "♟", (color), player, Files[file], "7")
             all_player_pieces.append(pawn)
     elif player == 1:
-        rook_1 = pieces.chess_piece("white_Rook", "♜", (color), player, font, screen, "A", "1")
+        rook_1 = pieces.chess_piece("white_Rook", "♜", (color), player, "A", "1")
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("white_Knight", "♞", (color), player, font, screen, "B", "1")
+        knight_1 = pieces.chess_piece("white_Knight", "♞", (color), player, "B", "1")
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("white_Bishop", "♝", (color), player, font, screen, "C", "1")
+        bishop_1 = pieces.chess_piece("white_Bishop", "♝", (color), player, "C", "1")
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("white_Queen", "♛", (color), player, font, screen, "D", "1")
+        queen = pieces.chess_piece("white_Queen", "♛", (color), player, "D", "1")
         all_player_pieces.append(queen)
-        king = pieces.chess_piece("white_King", "♚", (color), player, font, screen, "E", "1")
+        king = pieces.chess_piece("white_King", "♚", (color), player, "E", "1")
         all_player_pieces.append(king)
-        bishop_2 = pieces.chess_piece("white_Bishop", "♝", (color), player, font, screen, "F", "1")
+        bishop_2 = pieces.chess_piece("white_Bishop", "♝", (color), player, "F", "1")
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("white_Knight", "♞", (color), player, font, screen, "G", "1")
+        knight_2 = pieces.chess_piece("white_Knight", "♞", (color), player, "G", "1")
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("white_Rook", "♜", (color), player, font, screen, "H", "1")
+        rook_2 = pieces.chess_piece("white_Rook", "♜", (color), player, "H", "1")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = pieces.chess_piece("white_Pawn", "♟", (color), player, font, screen, Files[file], "2")
+            pawn = pieces.chess_piece("white_Pawn", "♟", (color), player, Files[file], "2")
             all_player_pieces.append(pawn)
 
     return all_player_pieces
@@ -102,11 +102,11 @@ while running:
                 pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
                 current_file , current_rank = determine_chess_coordinates(clicked_square["x"], clicked_square["y"])
                 chess_piece = determine_piece_in_square(clicked_square["x"], clicked_square["y"], player_1_pieces + player_2_pieces)
-                print(f"current_file: {current_file}, current_rank: {current_rank}, chess_piece: {chess_piece.name if chess_piece else 'None'}")
-                file, rank = ["A", "6"] # Example target square, replace with actual logic to determine target square
-                move_piece_to_square(chess_piece, file, rank, font) if chess_piece else None
-        for piece in player_1_pieces + player_2_pieces:
-            piece.render_piece()
+                file, rank = ["A", "5"] # Example target square, replace with actual logic to determine target square
+                determine_square_coordinates(file, rank)
+                move_piece_to_square(chess_piece, file, rank, player_1_pieces + player_2_pieces) if chess_piece else None
+    for piece in player_1_pieces + player_2_pieces:
+            piece.render_piece(font, screen)
         # Pieces
     # flip() the display to put your work on screen
     pygame.display.flip()
