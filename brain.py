@@ -1,4 +1,4 @@
-from position import determine_square
+from position import determine_piece_in_square, determine_square
 import pygame
 import pieces
 from cmath import rect
@@ -12,8 +12,8 @@ clock = pygame.time.Clock()
 board_width = 600
 center_x = screen.get_width() / 2
 center_y = screen.get_height() / 2
-player_1_color = (0, 0, 0)
-player_2_color = (255, 255, 255)
+player_1_color = (255, 255, 255)
+player_2_color = (0, 0, 0)
 player_1 = 1
 player_2 = 2
 increment = 75
@@ -23,26 +23,27 @@ running = True
 clicked_square = {}
 def initial_player_pieces(color,player):
     all_player_pieces = []
-    if player == 1:
-        piece_file = initial_x 
+    padding = 10
+    if player == 2:
+        piece_file = initial_x + padding
         pawn_rank  = initial_y + increment
         piece_rank = initial_y
 
-        rook_1 = pieces.chess_piece("White_Rook", "♜", (color), player, font,screen, x=piece_file + 10, y=initial_y)
+        rook_1 = pieces.chess_piece("black_Rook", "♜", (color), player, font,screen, x=piece_file, y=initial_y)
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("White_Knight", "♞", (color), player, font,screen, x=piece_file + 85, y=initial_y)
+        knight_1 = pieces.chess_piece("black_Knight", "♞", (color), player, font,screen, x=piece_file + 75, y=initial_y)
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("White_Bishop", "♝", (color), player, font,screen, x=piece_file + 160, y=initial_y)
+        bishop_1 = pieces.chess_piece("black_Bishop", "♝", (color), player, font,screen, x=piece_file + 150, y=initial_y)
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("White_Queen", "♛", (color), player, font,screen, x=piece_file + 235, y=initial_y)
+        queen = pieces.chess_piece("black_Queen", "♛", (color), player, font,screen, x=piece_file + 225, y=initial_y)
         all_player_pieces.append(queen)
-        king = pieces.chess_piece("White_King", "♚", (color), player, font,screen, x=piece_file + 310, y=initial_y)
+        king = pieces.chess_piece("black_King", "♚", (color), player, font,screen, x=piece_file + 300, y=initial_y)
         all_player_pieces.append(king)
-        bishop_2 = pieces.chess_piece("White_Bishop", "♝", (color), player, font,screen, x=piece_file + 385, y=initial_y)
+        bishop_2 = pieces.chess_piece("black_Bishop", "♝", (color), player, font,screen, x=piece_file + 375, y=initial_y)
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("White_Knight", "♞", (color), player, font,screen, x=piece_file + 460, y=initial_y)
+        knight_2 = pieces.chess_piece("black_Knight", "♞", (color), player, font,screen, x=piece_file + 450, y=initial_y)
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("White_Rook", "♜", (color), player, font,screen, x=piece_file + 535, y=initial_y)
+        rook_2 = pieces.chess_piece("black_Rook", "♜", (color), player, font,screen, x=piece_file + 525, y=initial_y)
         all_player_pieces.append(rook_2)
         rook_1.render_piece(font)
         knight_1.render_piece(font)
@@ -53,29 +54,29 @@ def initial_player_pieces(color,player):
         knight_2.render_piece(font)
         rook_2.render_piece(font)
         for x in range(initial_x, initial_x + board_width, increment):
-            pawn = pieces.chess_piece("Black_Pawn", "♟", (color), player, font,screen, x=x + 10, y=pawn_rank)
+            pawn = pieces.chess_piece("black_Pawn", "♟", (color), player, font,screen, x=x + 10, y=pawn_rank)
             pawn.render_piece(font)
             all_player_pieces.append(pawn)
-    elif player == 2:
-        piece_file = initial_x
+    elif player == 1:
+        piece_file = initial_x + padding
         pawn_rank  = board_width - increment
         piece_rank = board_width
 
-        rook_1 = pieces.chess_piece("Black_Rook", "♜", (color), player, font,screen, x=piece_file + 10, y=piece_rank)
+        rook_1 = pieces.chess_piece("white_Rook", "♜", (color), player, font,screen, x=piece_file, y=piece_rank)
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("Black_Knight", "♞", (color), player, font,screen, x=piece_file + 85, y=piece_rank)
+        knight_1 = pieces.chess_piece("white_Knight", "♞", (color), player, font,screen, x=piece_file + 75, y=piece_rank)
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("Black_Bishop", "♝", (color), player, font,screen, x=piece_file + 160, y=piece_rank)
+        bishop_1 = pieces.chess_piece("white_Bishop", "♝", (color), player, font,screen, x=piece_file + 150, y=piece_rank)
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("Black_Queen", "♛", (color), player, font,screen, x=piece_file + 235, y=piece_rank)
+        queen = pieces.chess_piece("white_Queen", "♛", (color), player, font,screen, x=piece_file + 225, y=piece_rank)
         all_player_pieces.append(queen)
-        king = pieces.chess_piece("Black_King", "♚", (color), player, font,screen, x=piece_file + 310, y=piece_rank)
+        king = pieces.chess_piece("white_King", "♚", (color), player, font,screen, x=piece_file + 300, y=piece_rank)
         all_player_pieces.append(king)
-        bishop_2 = pieces.chess_piece("Black_Bishop", "♝", (color), player, font,screen, x=piece_file + 385, y=piece_rank)
+        bishop_2 = pieces.chess_piece("white_Bishop", "♝", (color), player, font,screen, x=piece_file + 375, y=piece_rank)
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("Black_Knight", "♞", (color), player, font,screen, x=piece_file + 460, y=piece_rank)
+        knight_2 = pieces.chess_piece("white_Knight", "♞", (color), player, font,screen, x=piece_file + 450, y=piece_rank)
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("Black_Rook", "♜", (color), player, font,screen, x=piece_file + 535, y=piece_rank)
+        rook_2 = pieces.chess_piece("white_Rook", "♜", (color), player, font,screen, x=piece_file + 525, y=piece_rank)
         all_player_pieces.append(rook_2)
         rook_1.render_piece(font)
         knight_1.render_piece(font)
@@ -86,8 +87,9 @@ def initial_player_pieces(color,player):
         knight_2.render_piece(font)
         rook_2.render_piece(font)
         for x in range(initial_x, initial_x + board_width, increment):
-                pawn = pieces.chess_piece("Black_Pawn", "♟", (color), player, font,screen, x=x + 10, y=pawn_rank)
+                pawn = pieces.chess_piece("white_Pawn", "♟", (color), player, font,screen, x=x + 10, y=pawn_rank)
                 pawn.render_piece(font)
+                all_player_pieces.append(pawn)
 
     return all_player_pieces
 
@@ -127,14 +129,11 @@ while running:
                 pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
                 normal_x = clicked_square["x"] - initial_x #normalize the clicked square coordinates to the board's coordinate system
                 normal_y = clicked_square["y"] - initial_y #same here!!!!
-                #print(normal_x, normal_y, clicked_square["y"])
                 determine_square(normal_x, normal_y)
+                determine_piece_in_square(clicked_square["x"], clicked_square["y"], player_1_pieces + player_2_pieces)
         # Pieces
     player_1_pieces = initial_player_pieces(player_1_color, player_1)
     player_2_pieces = initial_player_pieces(player_2_color, player_2)
-
-    # print(player_1_pieces[0].name)
-    # print(player_2_pieces)
     # flip() the display to put your work on screen
     pygame.display.flip()
     clock.tick(10)  # limits FPS to 60
