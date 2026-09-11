@@ -1,24 +1,8 @@
-from position import determine_chess_coordinates, determine_piece_in_square, determine_square_coordinates, move_piece_to_square,Files
+from position import determine_chess_coordinates, determine_piece_in_square, determine_square_coordinates, move_piece_to_square,Files,Ranks
+from box import BOX
 import pygame
 import pieces
-
-# Global variables
-pygame.init()
-screen = pygame.display.set_mode((1280, 720))
-font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
-clock = pygame.time.Clock()
-board_width = 600
-center_x = screen.get_width() / 2
-center_y = screen.get_height() / 2
-player_1_color = (255, 255, 255)
-player_2_color = (0, 0, 0)
-player_1 = 1
-player_2 = 2
-increment = 75
-initial_x = 340
-initial_y = 60
-running = True
-clicked_square = {}
+#initilqlize player pieces
 def initial_player_pieces(color,player):
     all_player_pieces = []
     if player == 2:
@@ -63,8 +47,24 @@ def initial_player_pieces(color,player):
             all_player_pieces.append(pawn)
 
     return all_player_pieces
-player_1_pieces = initial_player_pieces(player_1_color, player_1)
-player_2_pieces = initial_player_pieces(player_2_color, player_2)
+player_1_params = ((255, 255, 255), 1) #white pieces, player 1
+player_2_params = ((0, 0, 0), 2)       #black pieces, player 2
+player_1_pieces = initial_player_pieces(player_1_params[0], player_1_params[1])
+player_2_pieces = initial_player_pieces(player_2_params[0], player_2_params[1])
+# Global variables
+screen = pygame.display.set_mode((1280, 720))
+pygame.font.init()
+font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
+initial_selected_piece = ["E", "2"]  # Example initial selected piece, replace with actual logic to determine selected piece
+selected_square = BOX(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
+clock = pygame.time.Clock()
+board_width = 600
+center_x = screen.get_width() / 2
+center_y = screen.get_height() / 2
+increment = 75
+initial_x = 340
+initial_y = 60
+running = True
 
 while running:
     # poll for events
@@ -74,7 +74,21 @@ while running:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:  # Left click
-                clicked_square = {"x": event.pos[0], "y": event.pos[1]}
+                current_file, current_rank = determine_chess_coordinates(event.pos[0], event.pos[1])
+                if current_file is not None and current_rank is not None:
+                    selected_square.file = Files[Files.index(current_file)]
+                    selected_square.rank = Ranks[Ranks.index(current_rank)]
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+            elif event.key == pygame.K_UP:
+                selected_square.move_up()
+            elif event.key == pygame.K_DOWN:
+                    selected_square.move_down()
+            elif event.key == pygame.K_LEFT:
+                selected_square.move_left()
+            elif event.key == pygame.K_RIGHT:
+                selected_square.move_right()
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((102,51, 0))
@@ -90,24 +104,12 @@ while running:
             else:
                 color = (190, 202, 193)
 
-            pygame.draw.rect(
-                screen,
-                color,
-                pygame.Rect(x, y, increment, increment)
-            )
+            pygame.draw.rect(screen,color,pygame.Rect(x, y, increment, increment))
 
-            if not clicked_square:
-                a = 0
-            elif x <= clicked_square["x"] <= x+increment and y <= clicked_square["y"] <= y+increment: # check if current square is clicked ...
-                pygame.draw.rect(screen, "green", pygame.Rect(x, y, increment, increment),3)
-                current_file , current_rank = determine_chess_coordinates(clicked_square["x"], clicked_square["y"])
-                chess_piece = determine_piece_in_square(clicked_square["x"], clicked_square["y"], player_1_pieces + player_2_pieces)
-                file, rank = ["A", "5"] # Example target square, replace with actual logic to determine target square
-                determine_square_coordinates(file, rank)
-                move_piece_to_square(chess_piece, file, rank, player_1_pieces + player_2_pieces) if chess_piece else None
+    selected_square.render_box(screen) # render the selected square once on top of the board
+
     for piece in player_1_pieces + player_2_pieces:
             piece.render_piece(font, screen)
-        # Pieces
     # flip() the display to put your work on screen
     pygame.display.flip()
     clock.tick(2)  # limits FPS to 60
