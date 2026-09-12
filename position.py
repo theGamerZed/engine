@@ -23,6 +23,10 @@ def determine_piece_in_square(x, y, player_pieces):
     for piece in player_pieces:
         if piece.file == coords[0] and piece.rank == coords[1]:
             return piece
+def detect_chess_piece (file, rank, player_pieces):
+    for piece in player_pieces:
+        if piece.file == file and piece.rank == rank:
+            return piece
 
 def move_piece_to_square(piece, file, rank, all_pieces,selected_status):
     x, y = determine_square_coordinates(file, rank)
@@ -38,3 +42,12 @@ def is_valid_square(x, y, pieces):
     # elif determine_piece_in_square(x, y, pieces).player != piece.player:
     #     return True
     return False
+
+def move_to_selected_square(highlighter,all_pieces):
+    x,y = determine_square_coordinates(highlighter.file,highlighter.rank)
+    if is_valid_square(x, y, all_pieces) and highlighter.current_piece.selected :
+        highlighter.current_piece.file = highlighter.file
+        highlighter.current_piece.rank = highlighter.rank
+    else:
+        print(f"Invalid move for {highlighter.current_piece.name} to square {highlighter.file}{highlighter.rank}.")
+    return None

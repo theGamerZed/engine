@@ -1,8 +1,9 @@
-from position import determine_chess_coordinates, determine_piece_in_square, determine_square_coordinates, move_piece_to_square,Files,Ranks
+from position import determine_chess_coordinates, determine_piece_in_square, determine_square_coordinates, move_piece_to_square,move_to_selected_square
+from position import Files,Ranks
 from box import BOX
 import pygame
 import pieces
-#initilqlize player pieces
+#initialise player pieces
 all_player_pieces = []
 def initial_player_pieces(color,player):
     if player == 2:
@@ -80,10 +81,9 @@ while running:
                     selected_square.rank = Ranks[Ranks.index(current_rank)]
                     selected_piece = determine_piece_in_square(event.pos[0],event.pos[1],all_player_pieces)
                     if selected_piece is not None:
-                        print(selected_piece.selected)
                         selected_piece.selected = True
-                        print(selected_piece.selected,selected_piece.name)
-                        move_piece_to_square(selected_piece,"E", "5",all_player_pieces,selected_piece.selected)
+                        selected_square.current_piece = selected_piece
+                        #move_piece_to_square(selected_piece,"E", "5",all_player_pieces,selected_piece.selected)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
@@ -95,6 +95,11 @@ while running:
                 selected_square.move_left()
             elif event.key == pygame.K_RIGHT:
                 selected_square.move_right()
+            elif event.key == pygame.K_RETURN:
+                move_to_selected_square(selected_square,all_player_pieces)
+                # for piece in all_player_pieces:
+                #     if piece.name == "white_king":
+                #         move_piece_to_square(piece,"E","7",all_player_pieces,piece.selected)
 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((102,51, 0))
