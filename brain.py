@@ -3,8 +3,8 @@ from box import BOX
 import pygame
 import pieces
 #initilqlize player pieces
+all_player_pieces = []
 def initial_player_pieces(color,player):
-    all_player_pieces = []
     if player == 2:
         rook_1 = pieces.chess_piece("black_Rook", "♜", (color), player, "A", "8")
         all_player_pieces.append(rook_1)
@@ -78,6 +78,12 @@ while running:
                 if current_file is not None and current_rank is not None:
                     selected_square.file = Files[Files.index(current_file)]
                     selected_square.rank = Ranks[Ranks.index(current_rank)]
+                    selected_piece = determine_piece_in_square(event.pos[0],event.pos[1],all_player_pieces)
+                    if selected_piece is not None:
+                        print(selected_piece.selected)
+                        selected_piece.selected = True
+                        print(selected_piece.selected,selected_piece.name)
+                        move_piece_to_square(selected_piece,"E", "5",all_player_pieces,selected_piece.selected)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False

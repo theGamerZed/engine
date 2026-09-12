@@ -23,11 +23,10 @@ def determine_piece_in_square(x, y, player_pieces):
     for piece in player_pieces:
         if piece.file == coords[0] and piece.rank == coords[1]:
             return piece
-    return None
 
-def move_piece_to_square(piece, file, rank, all_pieces):
+def move_piece_to_square(piece, file, rank, all_pieces,selected_status):
     x, y = determine_square_coordinates(file, rank)
-    if is_valid_square(x, y, all_pieces):
+    if is_valid_square(x, y, all_pieces) and selected_status :
         piece.rank = rank
         piece.file = file
     else:
