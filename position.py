@@ -79,4 +79,20 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
                 else:
                     print(f"unauth pieces on the way: {found.name}")
                     return False
+        if file_index - target_file_index > 0:
+            for f in range(file_index - 1, target_file_index, -1): # -1 to ignore the current piece's file and start verification from the square next to current piece
+                found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
+                if  found == None:
+                    print("auth")
+                else:
+                    print(f"unauth pieces on the way: {found.name}")
+                    return False
+        elif file_index - target_file_index < 0:
+                    for f in range(file_index + 1, target_file_index, 1): # -1 to ignore the current piece's file and start verification from the square next to current piece
+                        found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
+                        if  found == None:
+                            print("auth")
+                        else:
+                            print(f"unauth pieces on the way: {found.name}")
+                            return False
         return True
