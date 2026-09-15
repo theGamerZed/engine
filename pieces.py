@@ -2,13 +2,14 @@ import pygame
 
 from position import determine_square_coordinates
 class chess_piece:
-    def __init__(self, name, ASCII_value, color, player,file, rank,selected = False):
+    def __init__(self, type ,name, ASCII_value, color, player,file, rank,selected = False):
         self.name = name
         self.ASCII_value = ASCII_value
         self.color = color
         self.player = player
         self.rank = rank
         self.file = file
+        self.type = type
         self.selected = selected
 
     def render_piece(self,font,screen):
