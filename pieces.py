@@ -15,4 +15,3 @@ class chess_piece:
         piece = font.render(self.ASCII_value, True, self.color)
         coordinates = determine_square_coordinates(self.file, self.rank)
         screen.blit(piece, coordinates)
-

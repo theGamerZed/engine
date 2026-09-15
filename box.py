@@ -35,3 +35,12 @@ class BOX:
             print("out of bounds")
         else:
             self.file = Files[current_file_index + 1]
+    def move(self,direction):
+        if direction == "up":
+            self.move_up()
+        elif direction == "down":
+            self.move_down()
+        elif direction == "left":
+            self.move_left()
+        elif direction == "right":
+            self.move_right()
