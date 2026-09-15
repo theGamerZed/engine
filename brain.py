@@ -1,4 +1,4 @@
-from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square
+from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,detect_chess_piece
 from position import Files,Ranks
 from box import BOX
 import pygame
@@ -58,6 +58,11 @@ pygame.font.init()
 font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
 initial_selected_piece = ["E", "2"]  # Example initial selected piece, replace with actual logic to determine selected piece
 selected_square = BOX(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
+selected_square.current_piece = detect_chess_piece(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
+if selected_square.current_piece is not None:
+    selected_square.current_piece.selected = True
+else:
+    print("No piece found on this square")
 clock = pygame.time.Clock()
 board_width = 600
 center_x = screen.get_width() / 2
