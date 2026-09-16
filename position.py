@@ -23,6 +23,7 @@ def determine_piece_in_square(file, rank, player_pieces):
         if piece.file == file and piece.rank == rank:
             return piece
     return None
+
 def detect_chess_piece (file, rank, player_pieces):
     for piece in player_pieces:
         if piece.file == file and piece.rank == rank:
@@ -63,56 +64,58 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
             rank_index = Ranks.index(piece.rank)
             target_file_index = Files.index(target_file)
             target_rank_index = Ranks.index(target_rank)
-            #print(file_index , target_file_index )
-            file_diff = file_index - target_file_index
-            rank_diff = rank_index - target_rank_index
-            if abs(rank_diff) == abs(file_diff):
-                file_step = 1 if target_file_index > file_index else -1
-                rank_step = 1 if target_rank_index > rank_index else -1
-                steps = abs(file_diff)
-                for i in range(1, steps):
-                    curr_file_idx = file_index + (i * file_step)
-                    curr_rank_idx = rank_index + (i * rank_step)
-                    found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
-                    if found is not None:
-                        print(f"unauth pieces on the way: {found.name}")
-                        return False
-                    else:
-                        print(f"auth diag {curr_file_idx, curr_rank_idx}")
-            else:
-                if rank_index - target_rank_index > 0:
-                    for r in range(rank_index - 1, target_rank_index, -1): # -1 to ignore the current piece's rank and start verification from the piece in front
+            if (piece.type == "bishop" or piece.type == "queen" or piece.type == "king") and piece.diagonal:
+                file_diff = file_index - target_file_index
+                rank_diff = rank_index - target_rank_index
+                if abs(rank_diff) == abs(file_diff):
+                    file_step = 1 if target_file_index > file_index else -1
+                    rank_step = 1 if target_rank_index > rank_index else -1
+                    steps = abs(file_diff)
+                    for i in range(1, steps):
+                        curr_file_idx = file_index + (i * file_step)
+                        curr_rank_idx = rank_index + (i * rank_step)
+                        found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
+                        if found is not None:
+                            print(f"unauth pieces on the way: {found.name}")
+                            return False
+                        else:
+                            print(f"auth diag {curr_file_idx, curr_rank_idx}")
+            elif (piece.type == "pawn" or piece.type == "queen" or piece.type == "king" or piece.type == "rook"):
+                delta_rank = int(piece.rank) - int(target_rank)
+                delta_file = int(Files.index(piece.file)) - int(Files.index(target_file))
+                if piece.forward and delta_file == 0:
+                    if rank_index - target_rank_index > 0 and piece.forward:
+                        for r in range(rank_index - 1, target_rank_index, -1): # -1 to ignore the current piece's rank and start verification from the piece in front
+                            print(rank_index,target_rank_index)
+                            found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
+                            if found == None:
+                                print("authorized!!!")
+                            else:
+                                print(f"unauth pieces on the way: {found.name}")
+                                return False
+                    elif rank_index - target_rank_index < 0 and piece.forward:
                         print(rank_index,target_rank_index)
-                        found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
-                        if found == None:
-                            print("authorized!!!")
-                        else:
-                            print(f"unauth pieces on the way: {found.name}")
-                            return False
-                elif rank_index - target_rank_index < 0:
-                    print(rank_index,target_rank_index)
-                    for r in range(rank_index + 1 , target_rank_index, 1): # +1 to ignore the current piece's rank and start verification from the piece in front
-                        found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
-                        if found == None:
-                            print("authorized!!!")
-                        else:
-                            print(f"unauth pieces on the way: {found.name}")
-                            return False
-                elif file_index - target_file_index > 0:
-                    for f in range(file_index - 1, target_file_index, -1): # -1 to ignore the current piece's file and start verification from the square next to current piece
-                        found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
-                        if  found == None:
-                            print("auth")
-                        else:
-                            print(f"unauth pieces on the way: {found.name}")
-                            return False
-                elif file_index - target_file_index < 0:
-                    for f in range(file_index + 1, target_file_index, 1): # +1 to ignore the current piece's file and start verification from the square next to current piece
-                        found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
-                        if  found == None:
-                            print("auth")
-                        else:
-                            print(f"unauth pieces on the way: {found.name}")
-                            return False
-
-        return True
+                        for r in range(rank_index + 1 , target_rank_index, 1): # +1 to ignore the current piece's rank and start verification from the piece in front
+                            found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
+                            if found == None:
+                                print("authorized!!!")
+                            else:
+                                print(f"unauth pieces on the way: {found.name}")
+                                return False
+                if piece.sideward and delta_rank == 0:
+                    if file_index - target_file_index > 0 and piece.sideward:
+                        for f in range(file_index - 1, target_file_index, -1): # -1 to ignore the current piece's file and start verification from the square next to current piece
+                            found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
+                            if  found == None:
+                                print("auth")
+                            else:
+                                print(f"unauth pieces on the way: {found.name}")
+                                return False
+                    elif file_index - target_file_index < 0 and piece.sideward:
+                        for f in range(file_index + 1, target_file_index, 1): # +1 to ignore the current piece's file and start verification from the square next to current piece
+                            found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
+                            if  found == None:
+                                print("auth")
+                            else:
+                                print(f"unauth pieces on the way: {found.name}")
+                                return False

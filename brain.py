@@ -43,9 +43,9 @@ def initial_player_pieces(color,player):
         all_player_pieces.append(knight_2)
         rook_2 = pieces.chess_piece("rook", "white_Rook_2", "♜", (color), player, "H", "1")
         all_player_pieces.append(rook_2)
-        for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = pieces.chess_piece("pawn", "white_Pawn", "♟", (color), player, Files[file], "2")
-            all_player_pieces.append(pawn)
+        # for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
+        #     pawn = pieces.chess_piece("pawn", "white_Pawn", "♟", (color), player, Files[file], "2")
+        #     all_player_pieces.append(pawn)
 
     return all_player_pieces
 player_1_params = ((255, 255, 255), 1) #white pieces, player 1

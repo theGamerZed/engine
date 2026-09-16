@@ -11,6 +11,28 @@ class chess_piece:
         self.file = file
         self.type = type
         self.selected = selected
+        if self.type == "king" or self.type == "queen" :
+            self.forward = True
+            self.sideward = True
+            self.diagonal = True
+        elif self.type == "bishop":
+            self.forward = False
+            self.sideward = False
+            self.diagonal = True
+        elif self.type == "knight":
+            self.special = True
+            self.forward = False
+            self.sideward = False
+            self.diagonal = False
+        elif self.type == "pawn":
+            self.forward = True
+            self.sideward = False
+            self.diagonal = False
+        elif self.type == "rook":
+            self.forward = True
+            self.sideward = True
+            self.diagonal = False
+        
 
     def render_piece(self,font,screen):
         piece = font.render(self.ASCII_value, True, self.color)
