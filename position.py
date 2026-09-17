@@ -59,6 +59,18 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
     target_file_index = Files.index(target_file)
     delta_rank = int(piece.rank) - int(target_rank)
     delta_file = int(file_index) - int(target_file_index)
+    if piece.type == "king" and (abs(delta_rank) > 1 or  abs(delta_file) > 1):
+        return False
+    if piece.type == "pawn":
+        if abs(delta_file) > 0: # might be relevant later when doing captures ... dunno 
+            return False
+
+        if piece.rank in ("2", "7"): # nifty trick alright !!!
+            if abs(delta_rank) > 2:
+                return False
+        else:
+            if abs(delta_rank) > 1:
+                return False
     if abs(delta_file) == abs(delta_rank):
         if piece.diagonal:
             print(piece.type)
@@ -75,6 +87,8 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
         else:
             return False
     elif  delta_file == 0 and delta_rank is not 0 :
+        if (piece.player == 1 and delta_rank > 0) or (piece.player == 2 and delta_rank < 0):
+            return False
         if piece.forward:
             print(piece.type)
             for r in range(rank_index - 1, target_rank_index, -1):
