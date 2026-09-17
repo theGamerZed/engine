@@ -111,9 +111,8 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
             return False
     else:
         if piece.special:
-            print(piece.type)
-        else:
-            return False
-        print(piece.file, piece.rank)
-        print(target_file, target_rank)
+            if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
+                print(piece.type)
+            else:
+                return False
     return True
