@@ -12,6 +12,7 @@ class chess_piece:
         self.type = type
         self.selected = selected
         self.special = False
+        self.capture = False
         if self.type == "king" or self.type == "queen" :
             self.forward = True
             self.sideward = True

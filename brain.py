@@ -120,7 +120,7 @@ while running:
 
     selected_square.render_box(screen) # render the selected square once on top of the board
 
-    for piece in player_1_pieces + player_2_pieces:
+    for piece in all_player_pieces:
             piece.render_piece(font, screen)
     # flip() the display to put your work on screen
     pygame.display.flip()

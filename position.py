@@ -29,25 +29,23 @@ def detect_chess_piece (file, rank, player_pieces):
         if piece.file == file and piece.rank == rank:
             return piece
 
-def move_piece_to_square(piece, file, rank, all_pieces,selected_status):
-    if is_valid_square(file,rank, all_pieces) and selected_status :
-        piece.rank = rank
-        piece.file = file
-    else:
-        print(f"Invalid move for {piece.name} to square {file}{rank}.")
-
-def is_valid_square(file, rank, pieces):
-    if not determine_piece_in_square(file,rank,pieces):
+def is_valid_square(file, rank, all_pieces):
+    piece = determine_piece_in_square(file,rank,all_pieces)
+    if not piece:
         return True
-    # elif determine_piece_in_square(x, y, pieces).player != piece.player:
-    #     return True
+    elif piece.player == 2:
+        return True
     return False
 
 def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
     if is_path_free(selected_piece,highlighter_target.file,highlighter_target.rank,all_pieces):
         if is_valid_square(highlighter_target.file, highlighter_target.rank, all_pieces) and highlighter_target.current_piece.selected:
-            highlighter_target.current_piece.file = highlighter_target.file
-            highlighter_target.current_piece.rank = highlighter_target.rank
+            opposite_piece = determine_piece_in_square(highlighter_target.file,highlighter_target.rank,all_pieces)
+            if opposite_piece is not None:
+                capture_piece(selected_piece,opposite_piece,all_pieces)
+            else:
+                highlighter_target.current_piece.file = highlighter_target.file
+                highlighter_target.current_piece.rank = highlighter_target.rank
         else:
             print(f"Invalid move for {highlighter_target.current_piece.name} to square {highlighter_target.file}{highlighter_target.rank}.")
     return None
@@ -73,6 +71,7 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
                 return False
     if abs(delta_file) == abs(delta_rank):
         if piece.diagonal:
+            print("diagonal move")
             print(piece.type)
             file_step = 1 if target_file_index > file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
             rank_step = 1 if target_rank_index > rank_index else -1
@@ -86,23 +85,29 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
                     return False
         else:
             return False
-    elif  delta_file == 0 and delta_rank is not 0 :
-        if (piece.player == 1 and delta_rank > 0) or (piece.player == 2 and delta_rank < 0):
+    elif  delta_file == 0 and delta_rank != 0 :
+        rank_step = 1 if target_rank_index > rank_index else -1
+        steps = abs(delta_rank)
+        if (piece.player == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player == 2 and delta_rank < 0 and piece.type == "pawn"):
             return False
         if piece.forward:
             print(piece.type)
-            for r in range(rank_index - 1, target_rank_index, -1):
+            print("forward")
+            for r in range(rank_index + rank_step, target_rank_index , rank_step):
                 found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
                 if found is not None:
                     print(f"found {found.name} at {found.file, found.rank}")
                     return False
         else:
             return False
-    elif  delta_file is not 0 and delta_rank == 0 :
+    elif  delta_file != 0 and delta_rank == 0 :
+        file_step = 1 if file_index < target_file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
+        steps = abs(delta_file)
         print("sideward move")
         if piece.sideward:
             print(piece.type)
-            for f in range(file_index - 1, target_file_index, -1):
+            for f in range(file_index + file_step, target_file_index, file_step):
+                print(f"{file_index} file index, {steps}: steps, {file_step}: file step {f}; f")
                 found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
                 if found is not None:
                     print(f"found {found.name} at {found.file, found.rank}")
@@ -112,7 +117,21 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
     else:
         if piece.special:
             if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
+                print("special move")
                 print(piece.type)
             else:
                 return False
+        else:
+            return False
     return True
+
+def capture_piece(current_piece, target_piece, all_pieces):
+    current_piece.file = target_piece.file
+    current_piece.rank = target_piece.rank
+    current_piece_index = all_pieces.index(target_piece)
+    all_pieces.pop(current_piece_index)
+    print(len(all_pieces))
+    print(f"{current_piece.name} captured {target_piece.name} on square {target_piece.file,target_piece.rank}")
+    return True
+
+
