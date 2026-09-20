@@ -29,17 +29,17 @@ def detect_chess_piece (file, rank, player_pieces):
         if piece.file == file and piece.rank == rank:
             return piece
 
-def is_valid_square(file, rank, all_pieces):
+def is_valid_square(file, rank, current_player, all_pieces):
     piece = determine_piece_in_square(file,rank,all_pieces)
     if not piece:
         return True
-    elif piece.player == 2:
+    elif piece.player != current_player:
         return True
     return False
 
 def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
     if is_path_free(selected_piece,highlighter_target.file,highlighter_target.rank,all_pieces):
-        if is_valid_square(highlighter_target.file, highlighter_target.rank, all_pieces) and highlighter_target.current_piece.selected:
+        if is_valid_square(highlighter_target.file, highlighter_target.rank,highlighter_target.current_piece.player, all_pieces) and highlighter_target.current_piece.selected:
             opposite_piece = determine_piece_in_square(highlighter_target.file,highlighter_target.rank,all_pieces)
             if opposite_piece is not None:
                 capture_piece(selected_piece,opposite_piece,all_pieces)
@@ -60,10 +60,19 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
     if piece.type == "king" and (abs(delta_rank) > 1 or  abs(delta_file) > 1):
         return False
     if piece.type == "pawn":
-        if abs(delta_file) > 0: # might be relevant later when doing captures ... dunno 
+        if (piece.player == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player == 2 and delta_rank < 0 and piece.type == "pawn"):
             return False
-
-        if piece.rank in ("2", "7"): # nifty trick alright !!!
+        if abs(delta_file) == 1: # might be relevant later when doing captures ... dunno 
+            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+            if enemy_piece is not None:
+                capture_piece(piece,enemy_piece,all_pieces)
+            else :
+                return False
+        if abs(delta_rank) > 0:
+            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+            if enemy_piece: 
+                return False
+        if (piece.player == 1 and piece.rank =="2") or (piece.player == 2 and piece.rank == "7"):
             if abs(delta_rank) > 2:
                 return False
         else:
@@ -87,9 +96,8 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
             return False
     elif  delta_file == 0 and delta_rank != 0 :
         rank_step = 1 if target_rank_index > rank_index else -1
+        
         steps = abs(delta_rank)
-        if (piece.player == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player == 2 and delta_rank < 0 and piece.type == "pawn"):
-            return False
         if piece.forward:
             print(piece.type)
             print("forward")
