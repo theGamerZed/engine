@@ -17,7 +17,7 @@ def initialize_player_pieces(player):
         black_queen = pieces.chess_piece("queen","black_Queen", "♛", player_2, "D", "8")
         all_player_pieces.append(black_queen)
         black_king = pieces.chess_piece("king","black_King", "♚", player_2, "E", "8")
-        all_player_pieces.append(black_king)
+        #all_player_pieces.append(black_king)
         bishop_2 = pieces.chess_piece("bishop","black_Bishop_2", "♝", player_2, "F", "8")
         all_player_pieces.append(bishop_2)
         knight_2 = pieces.chess_piece("knight", "black_Knight_2", "♞", player_2, "G", "8")
@@ -38,7 +38,7 @@ def initialize_player_pieces(player):
         white_queen = pieces.chess_piece("queen", "white_Queen", "♛", player_1, "D", "1")
         all_player_pieces.append(white_queen)
         white_king = pieces.chess_piece("king", "white_King", "♚", player_1, "E", "1")
-        all_player_pieces.append(white_king)
+        #all_player_pieces.append(white_king)
         bishop_2 = pieces.chess_piece("bishop", "white_Bishop_2", "♝", player_1, "F", "1")
         all_player_pieces.append(bishop_2)
         knight_2 = pieces.chess_piece("knight", "white_Knight_2", "♞", player_1, "G", "1")
@@ -52,6 +52,8 @@ def initialize_player_pieces(player):
         return white_king
 white_king = initialize_player_pieces(player_1)
 black_king = initialize_player_pieces(player_2)
+all_player_pieces.append(white_king)
+all_player_pieces.append(black_king)
 # Global variables
 screen = pygame.display.set_mode((1280, 720))
 pygame.font.init()

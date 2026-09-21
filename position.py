@@ -34,24 +34,6 @@ def is_valid_square(file, rank, current_player, all_pieces):
         return True
     return False
 
-def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
-    valid_moves(all_pieces)
-    if selected_piece.player.turn is not True:
-        print(f"not Player: {selected_piece.player.player_number} turn")
-        return
-    if is_path_free(selected_piece,highlighter_target.file,highlighter_target.rank,all_pieces):
-        if is_valid_square(highlighter_target.file, highlighter_target.rank,highlighter_target.current_piece.player, all_pieces) and highlighter_target.current_piece.selected:
-            opposite_piece = determine_piece_in_square(highlighter_target.file,highlighter_target.rank,all_pieces)
-            if opposite_piece is not None:
-                capture_piece(selected_piece,opposite_piece,all_pieces)
-            else:
-                highlighter_target.current_piece.file = highlighter_target.file
-                highlighter_target.current_piece.rank = highlighter_target.rank
-                switch_turn(selected_piece.player)
-        else:
-            print(f"Invalid move for {highlighter_target.current_piece.name} to square {highlighter_target.file}{highlighter_target.rank}.")
-    return None
-
 def is_path_free(piece,target_file, target_rank,all_pieces):
     rank_index = Ranks.index(piece.rank)
     target_rank_index = Ranks.index(target_rank)
@@ -243,14 +225,40 @@ def valid_moves(all_pieces):
 
 def is_king_checked(king: chess_piece, all_pieces):
     for piece in all_pieces: 
-        if piece.player_number is not king.player_number:
+        if piece.player_number is not king.player_number: 
             if piece.name == king.name:
                 pass
             else:
                 for el in piece.valid_moves:
                     if (king.file, king.rank) == (el[0], el[1]):
-                        print("king is checked")
-        else:
+                        print(f"{king.name} is checked")
+                        return True
+        else: # only makes sure the enemy pieces can check the king 
             pass
 
-    return
+    return False
+
+def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
+    valid_moves(all_pieces)
+    if not selected_piece.player.turn:
+        print(f"not Player: {selected_piece.player.player_number} turn")
+        return
+    else:
+        current_king = next(
+            piece for piece in all_pieces
+            if piece.type == "king"
+            and piece.player.turn is True
+        )
+    if not is_king_checked(current_king,all_pieces):
+        if is_path_free(selected_piece,highlighter_target.file,highlighter_target.rank,all_pieces):
+            if is_valid_square(highlighter_target.file, highlighter_target.rank,highlighter_target.current_piece.player, all_pieces) and highlighter_target.current_piece.selected:
+                opposite_piece = determine_piece_in_square(highlighter_target.file,highlighter_target.rank,all_pieces)
+                if opposite_piece is not None:
+                    capture_piece(selected_piece,opposite_piece,all_pieces)
+                else:
+                    highlighter_target.current_piece.file = highlighter_target.file
+                    highlighter_target.current_piece.rank = highlighter_target.rank
+                    switch_turn(selected_piece.player)
+            else:
+                print(f"Invalid move for {highlighter_target.current_piece.name} to square {highlighter_target.file}{highlighter_target.rank}.")
+    return None
