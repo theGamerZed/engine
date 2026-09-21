@@ -1,4 +1,4 @@
-from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,detect_chess_piece
+from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,is_king_checked
 from position import Files,Ranks
 from box import BOX
 from player import Player,player_2,player_1
@@ -14,10 +14,10 @@ def initialize_player_pieces(player):
         all_player_pieces.append(knight_1)
         bishop_1 = pieces.chess_piece("bishop","black_Bishop_1", "♝", player_2, "C", "8")
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("queen","black_Queen", "♛", player_2, "D", "8")
-        all_player_pieces.append(queen)
-        king = pieces.chess_piece("king","black_King", "♚", player_2, "E", "8")
-        all_player_pieces.append(king)
+        black_queen = pieces.chess_piece("queen","black_Queen", "♛", player_2, "D", "8")
+        all_player_pieces.append(black_queen)
+        black_king = pieces.chess_piece("king","black_King", "♚", player_2, "E", "8")
+        all_player_pieces.append(black_king)
         bishop_2 = pieces.chess_piece("bishop","black_Bishop_2", "♝", player_2, "F", "8")
         all_player_pieces.append(bishop_2)
         knight_2 = pieces.chess_piece("knight", "black_Knight_2", "♞", player_2, "G", "8")
@@ -27,6 +27,7 @@ def initialize_player_pieces(player):
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
             pawn = pieces.chess_piece("pawn","black_Pawn", "♟", player_2, Files[file], "7")
             all_player_pieces.append(pawn)
+        return black_king
     elif player.player_number == 1:
         rook_1 = pieces.chess_piece("rook","white_Rook_1", "♜", player_1, "A", "1")
         all_player_pieces.append(rook_1)
@@ -34,10 +35,10 @@ def initialize_player_pieces(player):
         all_player_pieces.append(knight_1)
         bishop_1 = pieces.chess_piece("bishop", "white_Bishop_1", "♝", player_1, "C", "1")
         all_player_pieces.append(bishop_1)
-        queen = pieces.chess_piece("queen", "white_Queen", "♛", player_1, "D", "1")
-        all_player_pieces.append(queen)
-        king = pieces.chess_piece("king", "white_King", "♚", player_1, "E", "1")
-        all_player_pieces.append(king)
+        white_queen = pieces.chess_piece("queen", "white_Queen", "♛", player_1, "D", "1")
+        all_player_pieces.append(white_queen)
+        white_king = pieces.chess_piece("king", "white_King", "♚", player_1, "E", "1")
+        all_player_pieces.append(white_king)
         bishop_2 = pieces.chess_piece("bishop", "white_Bishop_2", "♝", player_1, "F", "1")
         all_player_pieces.append(bishop_2)
         knight_2 = pieces.chess_piece("knight", "white_Knight_2", "♞", player_1, "G", "1")
@@ -48,16 +49,16 @@ def initialize_player_pieces(player):
             pawn = pieces.chess_piece("pawn", "white_Pawn", "♟", player_1, Files[file], "2")
             all_player_pieces.append(pawn)
 
-    return all_player_pieces
-initialize_player_pieces(player_1)
-initialize_player_pieces(player_2)
+        return white_king
+white_king = initialize_player_pieces(player_1)
+black_king = initialize_player_pieces(player_2)
 # Global variables
 screen = pygame.display.set_mode((1280, 720))
 pygame.font.init()
 font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
 initial_selected_piece = ["E", "2"]  # Example initial selected piece, replace with actual logic to determine selected piece
 selected_square = BOX(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
-selected_square.current_piece = detect_chess_piece(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
+selected_square.current_piece = determine_piece_in_square(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
 if selected_square.current_piece is not None:
     selected_square.current_piece.selected = True
 else:
@@ -108,12 +109,10 @@ while running:
 
     for x in range(initial_x, initial_x + board_width, increment):
         for y in range(initial_y, initial_y + board_width, increment):
-
             if ((x-initial_x) + (y-initial_y)) % (increment * 2) == 0:
                 color = (51, 104, 75)
             else:
                 color = (190, 202, 193)
-
             pygame.draw.rect(screen,color,pygame.Rect(x, y, increment, increment))
 
     selected_square.render_box(screen) # render the selected square once on top of the board

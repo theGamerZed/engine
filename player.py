@@ -12,8 +12,8 @@ PLAYERS = [player_1,player_2]
 
 def switch_turn(player):
     current_player_index = PLAYERS.index(player)
-    for player in PLAYERS:
-        if player == PLAYERS[current_player_index]:
-            player.turn = False
+    for p in PLAYERS:
+        if p == PLAYERS[current_player_index]:
+            p.turn = False
         else:
-            player.turn = True
+            p.turn = True

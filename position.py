@@ -1,4 +1,5 @@
-from player import player_1,player_2,switch_turn
+from player import switch_turn
+from pieces import chess_piece
 Files = ["A", "B", "C", "D", "E", "F", "G", "H"]
 Ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
 increment = 75
@@ -25,12 +26,6 @@ def determine_piece_in_square(file, rank, player_pieces):
             return piece
     return None
 
-def detect_chess_piece (file, rank, player_pieces):
-    for piece in player_pieces:
-        if piece.file == file and piece.rank == rank:
-            return piece
-    return None
-
 def is_valid_square(file, rank, current_player, all_pieces):
     piece = determine_piece_in_square(file,rank,all_pieces)
     if not piece:
@@ -40,6 +35,7 @@ def is_valid_square(file, rank, current_player, all_pieces):
     return False
 
 def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
+    valid_moves(all_pieces)
     if selected_piece.player.turn is not True:
         print(f"not Player: {selected_piece.player.player_number} turn")
         return
@@ -149,4 +145,112 @@ def capture_piece(current_piece, target_piece, all_pieces):
     print(f"{current_piece.name} captured {target_piece.name} on square {target_piece.file,target_piece.rank}")
     return True
 
+def check_path(piece,target_file, target_rank,all_pieces):
+    rank_index = Ranks.index(piece.rank)
+    target_rank_index = Ranks.index(target_rank)
+    file_index = Files.index(piece.file)
+    target_file_index = Files.index(target_file)
+    delta_rank = int(piece.rank) - int(target_rank)
+    delta_file = int(file_index) - int(target_file_index)
+    if piece.type == "king" and (abs(delta_rank) > 1 or  abs(delta_file) > 1):
+        return False
+    if piece.type == "pawn":
+        if (piece.player_number == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player_number == 2 and delta_rank < 0 and piece.type == "pawn"):
+            return False
+        if abs(delta_file) == 1: # might be relevant later when doing captures ... dunno 
+            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+            if enemy_piece is not None:
+                pass
+            else :
+                return False
+        if abs(delta_rank) > 0:
+            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+            if enemy_piece: 
+                return False
+        if (piece.player_number == 1 and piece.rank =="2") or (piece.player_number == 2 and piece.rank == "7"):
+            if abs(delta_rank) > 2:
+                return False
+        else:
+            if abs(delta_rank) > 1:
+                return False
+    if abs(delta_file) == abs(delta_rank):
+        if piece.diagonal:
+            print("diagonal move")
+            print(piece.type)
+            file_step = 1 if target_file_index > file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
+            rank_step = 1 if target_rank_index > rank_index else -1
+            steps = abs(delta_file)
+            for i in range(1, steps):
+                curr_file_idx = file_index + (i * file_step)
+                curr_rank_idx = rank_index + (i * rank_step)
+                found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
+                if found is not None:
+                    print(f"found {found.name} at {found.file, found.rank}")
+                    return False
+        else:
+            return False
+    elif  delta_file == 0 and delta_rank != 0 :
+        rank_step = 1 if target_rank_index > rank_index else -1
+        
+        steps = abs(delta_rank)
+        if piece.forward:
+            print(piece.type)
+            print("forward")
+            for r in range(rank_index + rank_step, target_rank_index , rank_step):
+                found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
+                if found is not None:
+                    print(f"found {found.name} at {found.file, found.rank}")
+                    return False
+        else:
+            return False
+    elif  delta_file != 0 and delta_rank == 0 :
+        file_step = 1 if file_index < target_file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
+        steps = abs(delta_file)
+        print("sideward move")
+        if piece.sideward:
+            print(piece.type)
+            for f in range(file_index + file_step, target_file_index, file_step):
+                print(f"{file_index} file index, {steps}: steps, {file_step}: file step {f}; f")
+                found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
+                if found is not None:
+                    print(f"found {found.name} at {found.file, found.rank}")
+                    return False
+        else:
+            return False
+    else:
+        if piece.special:
+            if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
+                print("special move")
+                print(piece.type)
+            else:
+                return False
+        else:
+            return False
+    return True
 
+def valid_moves(all_pieces):
+    for piece in all_pieces:
+        for file in Files:
+            for rank in Ranks:
+                if check_path(piece,file,rank,all_pieces) and is_valid_square(file,rank,piece.player,all_pieces):
+                    square = [file,rank]
+                    if square not in piece.valid_moves:
+                        piece.valid_moves.append(square)
+
+    for piece in all_pieces:
+        print(f"{piece.name}: {piece.valid_moves}")
+    return 
+
+def is_king_checked(king: chess_piece, all_pieces):
+    for piece in all_pieces: 
+        if piece.player_number is not king.player_number:
+            if piece.name == king.name:
+                pass
+            else:
+                for el in piece.valid_moves:
+                    if (king.file, king.rank) == (el[0], el[1]):
+                        print("king is checked")
+        else:
+            pass
+
+    return
