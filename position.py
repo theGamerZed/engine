@@ -46,12 +46,10 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
     if piece.type == "pawn":
         if (piece.player_number == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player_number == 2 and delta_rank < 0 and piece.type == "pawn"):
             return False
-        if abs(delta_file) == 1: # might be relevant later when doing captures ... dunno 
+        if abs(delta_file) == 1 and abs(delta_rank) < 2: # might be relevant later when doing captures ... dunno 
             enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-            if enemy_piece is not None:
-                capture_piece(piece,enemy_piece,all_pieces)
-            else :
-                return False
+            if enemy_piece is not None and (piece.player is not  enemy_piece.player):
+               return True
         if abs(delta_rank) > 0:
             enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
             if enemy_piece: 
@@ -64,8 +62,6 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
                 return False
     if abs(delta_file) == abs(delta_rank):
         if piece.diagonal:
-            print("diagonal move")
-            print(piece.type)
             file_step = 1 if target_file_index > file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
             rank_step = 1 if target_rank_index > rank_index else -1
             steps = abs(delta_file)
@@ -74,7 +70,6 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
                 curr_rank_idx = rank_index + (i * rank_step)
                 found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
                 if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
                     return False
         else:
             return False
@@ -83,34 +78,26 @@ def is_path_free(piece,target_file, target_rank,all_pieces):
         
         steps = abs(delta_rank)
         if piece.forward:
-            print(piece.type)
-            print("forward")
             for r in range(rank_index + rank_step, target_rank_index , rank_step):
                 found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
                 if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
                     return False
         else:
             return False
     elif  delta_file != 0 and delta_rank == 0 :
         file_step = 1 if file_index < target_file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
         steps = abs(delta_file)
-        print("sideward move")
         if piece.sideward:
-            print(piece.type)
             for f in range(file_index + file_step, target_file_index, file_step):
-                print(f"{file_index} file index, {steps}: steps, {file_step}: file step {f}; f")
                 found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
                 if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
                     return False
         else:
             return False
     else:
         if piece.special:
             if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
-                print("special move")
-                print(piece.type)
+                return True
             else:
                 return False
         else:
@@ -122,124 +109,37 @@ def capture_piece(current_piece, target_piece, all_pieces):
     current_piece.rank = target_piece.rank
     current_piece_index = all_pieces.index(target_piece)
     all_pieces.pop(current_piece_index)
-    switch_turn(current_piece.player)
+   # switch_turn(current_piece.player)
     print(len(all_pieces))
     print(f"{current_piece.name} captured {target_piece.name} on square {target_piece.file,target_piece.rank}")
     return True
 
-def check_path(piece,target_file, target_rank,all_pieces):
-    rank_index = Ranks.index(piece.rank)
-    target_rank_index = Ranks.index(target_rank)
-    file_index = Files.index(piece.file)
-    target_file_index = Files.index(target_file)
-    delta_rank = int(piece.rank) - int(target_rank)
-    delta_file = int(file_index) - int(target_file_index)
-    if piece.type == "king" and (abs(delta_rank) > 1 or  abs(delta_file) > 1):
-        return False
-    if piece.type == "pawn":
-        if (piece.player_number == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player_number == 2 and delta_rank < 0 and piece.type == "pawn"):
-            return False
-        if abs(delta_file) == 1: # might be relevant later when doing captures ... dunno 
-            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-            if enemy_piece is not None:
-                pass
-            else :
-                return False
-        if abs(delta_rank) > 0:
-            enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-            if enemy_piece: 
-                return False
-        if (piece.player_number == 1 and piece.rank =="2") or (piece.player_number == 2 and piece.rank == "7"):
-            if abs(delta_rank) > 2:
-                return False
-        else:
-            if abs(delta_rank) > 1:
-                return False
-    if abs(delta_file) == abs(delta_rank):
-        if piece.diagonal:
-            print("diagonal move")
-            print(piece.type)
-            file_step = 1 if target_file_index > file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
-            rank_step = 1 if target_rank_index > rank_index else -1
-            steps = abs(delta_file)
-            for i in range(1, steps):
-                curr_file_idx = file_index + (i * file_step)
-                curr_rank_idx = rank_index + (i * rank_step)
-                found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
-                if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
-                    return False
-        else:
-            return False
-    elif  delta_file == 0 and delta_rank != 0 :
-        rank_step = 1 if target_rank_index > rank_index else -1
-        
-        steps = abs(delta_rank)
-        if piece.forward:
-            print(piece.type)
-            print("forward")
-            for r in range(rank_index + rank_step, target_rank_index , rank_step):
-                found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
-                if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
-                    return False
-        else:
-            return False
-    elif  delta_file != 0 and delta_rank == 0 :
-        file_step = 1 if file_index < target_file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
-        steps = abs(delta_file)
-        print("sideward move")
-        if piece.sideward:
-            print(piece.type)
-            for f in range(file_index + file_step, target_file_index, file_step):
-                print(f"{file_index} file index, {steps}: steps, {file_step}: file step {f}; f")
-                found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
-                if found is not None:
-                    print(f"found {found.name} at {found.file, found.rank}")
-                    return False
-        else:
-            return False
-    else:
-        if piece.special:
-            if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
-                print("special move")
-                print(piece.type)
-            else:
-                return False
-        else:
-            return False
-    return True
-
-def valid_moves(all_pieces):
+def generate_valid_moves(all_pieces):
+    for p in all_pieces:
+        p.valid_moves = []
     for piece in all_pieces:
         for file in Files:
             for rank in Ranks:
-                if check_path(piece,file,rank,all_pieces) and is_valid_square(file,rank,piece.player,all_pieces):
+                if is_path_free(piece,file,rank,all_pieces) and is_valid_square(file,rank,piece.player,all_pieces):
                     square = [file,rank]
                     if square not in piece.valid_moves:
                         piece.valid_moves.append(square)
 
-    for piece in all_pieces:
-        print(f"{piece.name}: {piece.valid_moves}")
+    # for piece in all_pieces:
+    #     #print(f"{piece.name}: {piece.valid_moves}")
+    #     pass
     return 
 
-def is_king_checked(king: chess_piece, all_pieces):
-    for piece in all_pieces: 
-        if piece.player_number is not king.player_number: 
-            if piece.name == king.name:
-                pass
-            else:
-                for el in piece.valid_moves:
-                    if (king.file, king.rank) == (el[0], el[1]):
-                        print(f"{king.name} is checked")
-                        return True
-        else: # only makes sure the enemy pieces can check the king 
-            pass
+def is_king_checked(king, all_pieces):
+    for piece in all_pieces:
+        if piece.player is not  king.player:
+            for move in piece.valid_moves:
+                if (king.file, king.rank) == (move[0], move[1]):
+                    return True
 
     return False
 
 def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
-    valid_moves(all_pieces)
     if not selected_piece.player.turn:
         print(f"not Player: {selected_piece.player.player_number} turn")
         return
@@ -249,16 +149,37 @@ def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
             if piece.type == "king"
             and piece.player.turn is True
         )
-    if not is_king_checked(current_king,all_pieces):
-        if is_path_free(selected_piece,highlighter_target.file,highlighter_target.rank,all_pieces):
-            if is_valid_square(highlighter_target.file, highlighter_target.rank,highlighter_target.current_piece.player, all_pieces) and highlighter_target.current_piece.selected:
-                opposite_piece = determine_piece_in_square(highlighter_target.file,highlighter_target.rank,all_pieces)
-                if opposite_piece is not None:
-                    capture_piece(selected_piece,opposite_piece,all_pieces)
-                else:
-                    highlighter_target.current_piece.file = highlighter_target.file
-                    highlighter_target.current_piece.rank = highlighter_target.rank
-                    switch_turn(selected_piece.player)
-            else:
-                print(f"Invalid move for {highlighter_target.current_piece.name} to square {highlighter_target.file}{highlighter_target.rank}.")
+    if trial_move(selected_piece,current_king,highlighter_target.file,highlighter_target.rank,all_pieces):
+        switch_turn(selected_piece.player)
+
     return None
+
+def trial_move(piece, king, target_file, target_rank, all_pieces):
+    prev_file = piece.file
+    prev_rank = piece.rank
+
+    if not is_path_free(piece, target_file, target_rank, all_pieces):
+        return False
+    if not is_valid_square(target_file,target_rank,piece.player,all_pieces):
+        return False
+    opposite_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+    # Ignore captures for now
+    if opposite_piece is not None:
+        return False
+    piece.file = target_file
+    piece.rank = target_rank
+    # Recalculate hypothetical position
+    generate_valid_moves(all_pieces)
+    # Did this move expose our king?
+    if is_king_checked(king, all_pieces):
+        print("Move rejected: piece is pinned.")
+        for p in all_pieces:
+            print( f"{p.name} : {p.valid_moves}")
+        revert_move(piece, prev_file, prev_rank,all_pieces)
+        return False   
+    return True
+
+def revert_move(piece,prev_file,prev_rank,all_pieces):
+    piece.file = prev_file
+    piece.rank = prev_rank
+    generate_valid_moves(all_pieces)

@@ -6,6 +6,7 @@ class Player:
 
 #initialise player pieces
 player_1 = Player(1,True,(255, 255, 255))   #white pieces, player 1
+#player_2 = Player(2,False,(0, 0, 0) )       #black pieces, player 2    
 player_2 = Player(2,False,(0, 0, 0) )       #black pieces, player 2    
 
 PLAYERS = [player_1,player_2]
