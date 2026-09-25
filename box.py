@@ -3,12 +3,12 @@ import pygame
 from position import Files, Ranks
 from position import determine_square_coordinates
 class BOX:
-    def __init__(self, file:str , rank:str , color,):
+    def __init__(self, file:str , rank:str , color: tuple[int, int, int]):
         self.file = file
         self.rank = rank
         self.color = color
         self.current_piece = None
-    def render_box(self, screen):
+    def render_box(self, screen: pygame.Surface):
         coordinates = determine_square_coordinates(self.file, self.rank)
         pygame.draw.rect(screen, self.color, pygame.Rect(coordinates[0], coordinates[1], 75, 75),3)
     def move_up(self):

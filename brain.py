@@ -6,7 +6,7 @@ import pygame
 import pieces
 # helper functions
 all_player_pieces = []
-def initialize_player_pieces(player):
+def initialize_player_pieces(player: Player):
     if player.player_number == 2:
         rook_1 = pieces.chess_piece("rook","black_Rook_1", "♜", player_2, "A", "8")
         all_player_pieces.append(rook_1)
