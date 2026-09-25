@@ -109,36 +109,166 @@ def capture_piece(current_piece, target_piece, all_pieces):
     current_piece.rank = target_piece.rank
     current_piece_index = all_pieces.index(target_piece)
     all_pieces.pop(current_piece_index)
-   # switch_turn(current_piece.player)
-    print(len(all_pieces))
     print(f"{current_piece.name} captured {target_piece.name} on square {target_piece.file,target_piece.rank}")
     return True
+def determine_attacked_squares(piece, all_pieces):
 
-def generate_valid_moves(all_pieces):
+    if piece.type == "pawn":
+        piece.attacked_squares = pawn_attacks(piece)
+
+    elif piece.type == "knight":
+        piece.attacked_squares = knight_attacks(piece)
+
+    elif piece.type == "bishop":
+        piece.attacked_squares = sliding_attacks(piece,all_pieces,[(1, 1), (1, -1), (-1, 1), (-1, -1)])
+
+    elif piece.type == "rook":
+        piece.attacked_squares = sliding_attacks(piece,all_pieces,[(1, 0), (-1, 0), (0, 1), (0, -1)])
+
+    elif piece.type == "queen":
+        piece.attacked_squares = sliding_attacks(piece,all_pieces,[(1, 1), (1, -1), (-1, 1), (-1, -1),(1, 0), (-1, 0), (0, 1), (0, -1)])
+
+    elif piece.type == "king":
+        piece.attacked_squares = king_attacks(piece)
+
+    return piece.attacked_squares    
+def pawn_attacks(piece):
+    attacked = []
+    file_index = Files.index(piece.file)
+    rank_index = Ranks.index(piece.rank)
+    if piece.player.player_number == 1:       # White
+        rank_step = -1
+    else:                       # Black
+        rank_step = 1
+    target_rank_index = rank_index + rank_step
+    if 0 <= target_rank_index < len(Ranks):
+        # diagonal left
+        if file_index - 1 >= 0:
+            attacked.append([
+                Files[file_index - 1],
+                Ranks[target_rank_index]
+            ])
+        # diagonal right
+        if file_index + 1 < len(Files):
+            attacked.append([
+                Files[file_index + 1],
+                Ranks[target_rank_index]
+            ])
+
+    return attacked      
+
+def knight_attacks(piece):
+    attacked = []
+
+    file_index = Files.index(piece.file)
+    rank_index = Ranks.index(piece.rank)
+
+    offsets = [
+        (1, 2),
+        (2, 1),
+        (2, -1),
+        (1, -2),
+        (-1, -2),
+        (-2, -1),
+        (-2, 1),
+        (-1, 2)
+    ]
+
+    for file_step, rank_step in offsets:
+        new_file = file_index + file_step
+        new_rank = rank_index + rank_step
+
+        if (0 <= new_file < len(Files) and 0 <= new_rank < len(Ranks)):
+            attacked.append([
+                Files[new_file],
+                Ranks[new_rank]
+            ])
+
+    return attacked
+
+def king_attacks(piece):
+    attacked = []
+
+    file_index = Files.index(piece.file)
+    rank_index = Ranks.index(piece.rank)
+
+    for file_step in [-1, 0, 1]:
+        for rank_step in [-1, 0, 1]:
+
+            if file_step == 0 and rank_step == 0:
+                continue
+
+            new_file = file_index + file_step
+            new_rank = rank_index + rank_step
+
+            if (
+                0 <= new_file < len(Files)
+                and 0 <= new_rank < len(Ranks)
+            ):
+                attacked.append([
+                    Files[new_file],
+                    Ranks[new_rank]
+                ])
+
+    return attacked
+
+def sliding_attacks(piece, all_pieces, directions):
+    attacked = []
+
+    file_index = Files.index(piece.file)
+    rank_index = Ranks.index(piece.rank)
+
+    for file_step, rank_step in directions:
+
+        current_file = file_index + file_step
+        current_rank = rank_index + rank_step
+
+        while (
+            0 <= current_file < len(Files)
+            and 0 <= current_rank < len(Ranks)
+        ):
+
+            square = [
+                Files[current_file],
+                Ranks[current_rank]
+            ]
+
+            attacked.append(square)
+
+            occupying_piece = determine_piece_in_square(
+                square[0],
+                square[1],
+                all_pieces
+            )
+
+            if occupying_piece is not None:
+                break
+
+            current_file += file_step
+            current_rank += rank_step
+
+    return attacked
+
+def generate_pseudo_legal_moves(all_pieces):
     for p in all_pieces:
-        p.valid_moves = []
+        p.pseudo_legal_moves = []
     for piece in all_pieces:
         for file in Files:
             for rank in Ranks:
                 if is_path_free(piece,file,rank,all_pieces) and is_valid_square(file,rank,piece.player,all_pieces):
                     square = [file,rank]
-                    if square not in piece.valid_moves:
-                        piece.valid_moves.append(square)
-
-    # for piece in all_pieces:
-    #     #print(f"{piece.name}: {piece.valid_moves}")
-    #     pass
-    return 
+                    if square not in piece.pseudo_legal_moves:
+                        piece.pseudo_legal_moves.append(square)
+    return None
 
 def is_king_checked(king, all_pieces):
     for piece in all_pieces:
-        if piece.player is not  king.player:
-            for move in piece.valid_moves:
-                if (king.file, king.rank) == (move[0], move[1]):
-                    return True
+        if piece.player != king.player:
+            attacked_squares = determine_attacked_squares(piece,all_pieces)
+            if [king.file, king.rank] in attacked_squares:
+                return True
 
     return False
-
 def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
     if not selected_piece.player.turn:
         print(f"not Player: {selected_piece.player.player_number} turn")
@@ -146,40 +276,46 @@ def move_to_selected_square(selected_piece ,highlighter_target,all_pieces):
     else:
         current_king = next(
             piece for piece in all_pieces
-            if piece.type == "king"
-            and piece.player.turn is True
-        )
-    if trial_move(selected_piece,current_king,highlighter_target.file,highlighter_target.rank,all_pieces):
-        switch_turn(selected_piece.player)
+                if piece.type == "king" and piece.player == selected_piece.player
+            )
+    trial_move(selected_piece,current_king,highlighter_target.file,highlighter_target.rank,all_pieces)
+        
 
     return None
 
 def trial_move(piece, king, target_file, target_rank, all_pieces):
     prev_file = piece.file
     prev_rank = piece.rank
+    prev_test_capture = None
 
     if not is_path_free(piece, target_file, target_rank, all_pieces):
         return False
     if not is_valid_square(target_file,target_rank,piece.player,all_pieces):
         return False
     opposite_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-    # Ignore captures for now
     if opposite_piece is not None:
-        return False
-    piece.file = target_file
-    piece.rank = target_rank
-    # Recalculate hypothetical position
-    generate_valid_moves(all_pieces)
+        prev_test_capture = opposite_piece
+        capture_piece(piece, opposite_piece,all_pieces)
+    else:
+        piece.file = target_file
+        piece.rank = target_rank
+        # Recalculate hypothetical position
+    determine_attacked_squares(piece,all_pieces)
     # Did this move expose our king?
     if is_king_checked(king, all_pieces):
         print("Move rejected: piece is pinned.")
         for p in all_pieces:
-            print( f"{p.name} : {p.valid_moves}")
-        revert_move(piece, prev_file, prev_rank,all_pieces)
-        return False   
-    return True
+            print( f"{p.name} : {p.pseudo_legal_moves}")
+        revert_move(piece, prev_file, prev_rank,all_pieces,prev_test_capture)
+        return False 
+    else:  
+        switch_turn(piece.player)
+        return True
 
-def revert_move(piece,prev_file,prev_rank,all_pieces):
+def revert_move(piece,prev_file,prev_rank,all_pieces,capture = None):
     piece.file = prev_file
     piece.rank = prev_rank
-    generate_valid_moves(all_pieces)
+    generate_pseudo_legal_moves(all_pieces)
+
+    if capture is not None:
+        all_pieces.append(capture)

@@ -1,4 +1,4 @@
-from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,trial_move
+from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,determine_attacked_squares
 from position import Files,Ranks
 from box import BOX
 from player import Player,player_2,player_1
@@ -89,8 +89,7 @@ while running:
                     selected_piece = determine_piece_in_square(current_file,current_rank,all_player_pieces)
                     if selected_piece is not None:
                         selected_piece.selected = True
-                        selected_square.current_piece = selected_piece
-                        print(selected_piece.file,selected_piece.rank)
+                        selected_square.current_piece = selected_piece                        
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
@@ -104,7 +103,6 @@ while running:
                 selected_square.move_right()
             elif event.key == pygame.K_RETURN:
                 move_to_selected_square(selected_square.current_piece,selected_square,all_player_pieces)
-                #trial_move(selected_square.current_piece,black_king,selected_square.file,selected_square.rank,all_player_pieces)
                 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((102,51, 0))

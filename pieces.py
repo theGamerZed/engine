@@ -19,6 +19,9 @@ class chess_piece:
         self.selected = selected
         self.special = False
         self.valid_moves = []
+        self.attacked_squares = []
+        self.pseudo_legal_moves = []
+        self.pseudo_legal_moves =[]
         if self.type == "king":
             self.check = False
         if self.type == "king" or self.type == "queen" :
