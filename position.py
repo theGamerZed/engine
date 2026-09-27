@@ -34,83 +34,12 @@ def is_valid_square(file : str, rank : str, current_player, all_pieces):
         return True
     return False
 
-# def is_path_free(piece:chess_piece,target_file: str, target_rank : str,all_pieces:list):
-#     rank_index = Ranks.index(piece.rank)
-#     target_rank_index = Ranks.index(target_rank)
-#     file_index = Files.index(piece.file)
-#     target_file_index = Files.index(target_file)
-#     delta_rank = int(piece.rank) - int(target_rank)
-#     delta_file = int(file_index) - int(target_file_index)
-
-#     if piece.type == "king" and (abs(delta_rank) > 1 or  abs(delta_file) > 1):
-#         if abs(delta_file) == 2 and delta_rank == 0:
-#             return True
-#         return False
-#     if piece.type == "pawn":
-#         if (piece.player_number == 1 and delta_rank > 0 and piece.type == "pawn") or (piece.player_number == 2 and delta_rank < 0 and piece.type == "pawn"):
-#             return False
-#         if abs(delta_file) == 1 and abs(delta_rank) < 2: # might be relevant later when doing captures ... dunno 
-#             enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-#             if enemy_piece is not None and (piece.player is not  enemy_piece.player):
-#                return True
-#         if abs(delta_rank) > 0:
-#             enemy_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-#             if enemy_piece: 
-#                 return False
-#         if (piece.player_number == 1 and piece.rank =="2") or (piece.player_number == 2 and piece.rank == "7"):
-#             if abs(delta_rank) > 2:
-#                 return False
-#         else:
-#             if abs(delta_rank) > 1:
-#                 return False
-#     if abs(delta_file) == abs(delta_rank):
-#         if piece.diagonal:
-#             file_step = 1 if target_file_index > file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
-#             rank_step = 1 if target_rank_index > rank_index else -1
-#             steps = abs(delta_file)
-#             for i in range(1, steps):
-#                 curr_file_idx = file_index + (i * file_step)
-#                 curr_rank_idx = rank_index + (i * rank_step)
-#                 found = determine_piece_in_square(Files[curr_file_idx], Ranks[curr_rank_idx], all_pieces)
-#                 if found is not None:
-#                     return False
-#         else:
-#             return False
-#     elif  delta_file == 0 and delta_rank != 0 :
-#         rank_step = 1 if target_rank_index > rank_index else -1
-        
-#         steps = abs(delta_rank)
-#         if piece.forward:
-#             for r in range(rank_index + rank_step, target_rank_index , rank_step):
-#                 found = determine_piece_in_square(piece.file,Ranks[r],all_pieces)
-#                 if found is not None:
-#                     return False
-#         else:
-#             return False
-#     elif  delta_file != 0 and delta_rank == 0 :
-#         file_step = 1 if file_index < target_file_index else -1 # vary both file and rank separately to avoid issues that stem from directional changes
-#         steps = abs(delta_file)
-#         if piece.sideward:
-#             for f in range(file_index + file_step, target_file_index, file_step):
-#                 found = determine_piece_in_square(Files[f],piece.rank,all_pieces)
-#                 if found is not None:
-#                     return False
-#         else:
-#             return False
-#     else:
-#         if piece.special:
-#             if (abs(delta_file) == 2 and abs(delta_rank) == 1) or (abs(delta_file) == 1 and abs(delta_rank) == 2):
-#                 return True
-#             else:
-#                 return False
-#         else:
-#             return False
-#     return True
-
 def is_path_free(piece:chess_piece,target_file: str, target_rank : str,all_pieces:list):
     valid = True
     if piece.type == "pawn":
         valid = pawn_move(piece,target_file,target_rank,all_pieces,[(0,1),(0,2),(0,-1),(0,-2)])
+    else:
+        valid = piece_move(piece,target_file,target_rank,all_pieces)
         print(valid)
     return valid
 
@@ -125,7 +54,6 @@ def pawn_move(piece, target_file, target_rank, all_pieces, directions):
     delta_file = file_index - target_file_index
 
     coord = (delta_file, delta_rank)
-
     if coord not in directions:
         return False
     
@@ -154,6 +82,14 @@ def pawn_move(piece, target_file, target_rank, all_pieces, directions):
             return False
         return True
 
+    return False
+
+def piece_move(piece,target_file,target_rank,all_pieces):
+    attacked_squares = determine_attacked_squares(piece,all_pieces)
+    print(attacked_squares)
+    if [target_file,target_rank] in attacked_squares:
+        print(target_file,target_rank)
+        return True
     return False
 
 def capture_piece(current_piece :chess_piece, target_piece :chess_piece, all_pieces: list):
@@ -304,7 +240,7 @@ def is_king_checked(king:chess_piece, all_pieces:list) -> bool:
                 return True
     return False
   
-def move_to_selected_square(selected_piece,highlighter_target,all_pieces):
+def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pieces:list):
     if not selected_piece.player.turn:
         print(f"not Player: {selected_piece.player.player_number} turn")
         return

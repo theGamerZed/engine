@@ -21,32 +21,7 @@ class chess_piece:
         self.valid_moves = []
         self.attacked_squares = []
         self.pseudo_legal_moves = []
-        self.pseudo_legal_moves =[]
-        if self.type == "king":
-            self.check = False
-        if self.type == "king" or self.type == "queen" :
-            self.forward = True
-            self.sideward = True
-            self.diagonal = True
-        elif self.type == "bishop":
-            self.forward = False
-            self.sideward = False
-            self.diagonal = True
-        elif self.type == "knight":
-            self.special = True
-            self.forward = False
-            self.sideward = False
-            self.diagonal = False
-        elif self.type == "pawn":
-            self.forward = True
-            self.sideward = False
-            self.diagonal = False
-        elif self.type == "rook":
-            self.forward = True
-            self.sideward = True
-            self.diagonal = False
-        
-
+     
     def render_piece(self,font,screen):
         piece = font.render(self.ASCII_value, True, self.color)
         coordinates = determine_square_coordinates(self.file, self.rank)
