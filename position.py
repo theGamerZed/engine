@@ -38,9 +38,27 @@ def is_path_free(piece:chess_piece,target_file: str, target_rank : str,all_piece
     valid = True
     if piece.type == "pawn":
         valid = pawn_move(piece,target_file,target_rank,all_pieces,[(0,1),(0,2),(0,-1),(0,-2)])
-    else:
+    elif piece.type == "king":
+        delta_file = Files.index(piece.file) - Files.index(target_file)
+        if abs(delta_file) > 2 : return False
+        if abs(delta_file) == 2 :
+            castling_rook = None
+            rook_file = "H" if delta_file < 0 else "A"
+            rook_rank = "1" if piece.player_number == 1 else "8"
+            for p in all_pieces:
+                if (p.type == "rook" and p.file == rook_file and p.rank == rook_rank):
+                    castling_rook = p
+                    break
+            if castling_rook is not None:
+                if is_path_free (castling_rook,piece.file,piece.rank,all_pieces):
+                    return True
+                else:
+                    return False
+            else: return False
+        elif abs(delta_file) == 1 :
+            valid = piece_move(piece,target_file,target_rank,all_pieces)
+    else: # for all pieces except king and pawns
         valid = piece_move(piece,target_file,target_rank,all_pieces)
-        print(valid)
     return valid
 
 def pawn_move(piece, target_file, target_rank, all_pieces, directions):
@@ -96,9 +114,7 @@ def pawn_move(piece, target_file, target_rank, all_pieces, directions):
 
 def piece_move(piece,target_file,target_rank,all_pieces):
     attacked_squares = determine_attacked_squares(piece,all_pieces)
-    print(attacked_squares)
     if [target_file,target_rank] in attacked_squares:
-        print(target_file,target_rank)
         return True
     return False
 
@@ -267,44 +283,64 @@ def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pi
     trial_move(selected_piece,current_king,highlighter_target.file,highlighter_target.rank,all_pieces)
     return None
 
-def trial_move(piece:chess_piece, king:chess_piece, target_file : str, target_rank : str, all_pieces:list) -> bool:
-    prev_file = piece.file
-    prev_rank = piece.rank
-    prev_test_capture = None
-
+def trial_move(piece:chess_piece, king:chess_piece, target_file : str, target_rank : str, all_pieces:list):
     if not is_path_free(piece, target_file, target_rank, all_pieces):
         return False
     if not is_valid_square(target_file,target_rank,piece.player,all_pieces):
         return False
-    opposite_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
-    if opposite_piece is not None and not (piece.player == opposite_piece.player):
-        prev_test_capture = opposite_piece
-        if not capture_piece(piece, opposite_piece,all_pieces):
+    
+    delta_file = Files.index(piece.file) - Files.index(target_file)
+    if piece.type == "king" and abs(delta_file) == 2:
+        castling_rook = None
+        rook_file = "H" if delta_file < 0 else "A"
+        rook_rank = "1" if piece.player_number == 1 else "8"
+        for p in all_pieces:
+            if (p.type == "rook" and p.file == rook_file and p.rank == rook_rank):
+                castling_rook = p
+                print(f"castling rook is {castling_rook.name}: at {castling_rook.file,castling_rook.rank}")
+                break
+        if castling_rook is not None:
+            castle(piece,castling_rook,target_file)
+            switch_turn(piece.player)
+        else:
             return False
     else:
-        piece.file = target_file
-        piece.rank = target_rank
-    # Recalculate hypothetical position
-    determine_attacked_squares(piece,all_pieces)
-    # Did this move expose our king?
-    if is_king_checked(king, all_pieces):
-        print("Move rejected: king is checked.")
-        # for p in all_pieces:
-        #     print( f"{p.name} : {p.attacked_squares}")
-        revert_move(piece, prev_file, prev_rank,all_pieces,prev_test_capture)
-        return False 
-    else:  
-        # if move is 'valid' switch player
-        switch_turn(piece.player)
-        return True
+        prev_file = piece.file
+        prev_rank = piece.rank
+        prev_test_capture = None
+        opposite_piece = determine_piece_in_square(target_file,target_rank,all_pieces)
+        if opposite_piece is not None and not (piece.player == opposite_piece.player):
+            prev_test_capture = opposite_piece
+            if not capture_piece(piece, opposite_piece,all_pieces):
+                return False
+        else:
+            piece.file = target_file
+            piece.rank = target_rank
+        # Recalculate hypothetical position
+        determine_attacked_squares(piece,all_pieces)
+        # Did this move expose our king?
+        if is_king_checked(king, all_pieces):
+            print("Move rejected: king is checked.")
+            # for p in all_pieces:
+            #     print( f"{p.name} : {p.attacked_squares}")
+            revert_move(piece, prev_file, prev_rank,all_pieces,prev_test_capture)
+            return False 
+        else:  
+            # if move is 'valid' switch player
+            switch_turn(piece.player)
+            return True
 
-def revert_move(piece:chess_piece,prev_file : str,prev_rank : str,all_pieces:list,capture = None):
+def revert_move(piece:chess_piece,prev_file : str,prev_rank : str, all_pieces:list, capture = None):
     piece.file = prev_file
     piece.rank = prev_rank
     if capture is not None:
         all_pieces.append(capture)
 
-def castle(king :chess_piece,target_file: str, target_rank: str, all_pieces :list):
-    if not is_path_free(king,target_file,target_rank,all_pieces):
-        return False
-    trial_move(king,king,target_file,target_rank,all_pieces)
+def castle(king :chess_piece,rook: chess_piece, t_file:str):
+    delta_file = Files.index(king.file) - Files.index(t_file)
+    king.file = t_file
+
+    offset = -1 if delta_file < 0 else 1
+    new_rook_file = Files[Files.index(t_file) + offset]
+    rook.file = new_rook_file
+    return False
