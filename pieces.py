@@ -21,6 +21,7 @@ class chess_piece:
         self.valid_moves = []
         self.attacked_squares = []
         self.pseudo_legal_moves = []
+        self.move_history = []
      
     def render_piece(self,font,screen):
         piece = font.render(self.ASCII_value, True, self.color)

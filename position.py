@@ -304,16 +304,20 @@ def trial_move(piece:chess_piece, king:chess_piece, target_file : str, target_ra
         step = -1 if start_index > end_index else 1
         print(start_index,end_index,step)
         if castling_rook is not None:
-            for f in Files[start_index:end_index + step:step]: # test if any of the kings moving squares is attacked 
-                print(f"tested squares are {f,target_rank}")
-                for el in all_pieces:
-                    if el.player_number != piece.player_number:
-                        if [f,target_rank] in el.attacked_squares:
-                            print(el.name)
-                            return False
-            castle(piece,castling_rook,target_file)
-            switch_turn(piece.player)
-            return True 
+            if not piece.move_history and not castling_rook.move_history:
+                for f in Files[start_index:end_index + step:step]: # test if any of the kings moving squares is attacked 
+                    print(f"tested squares are {f,target_rank}")
+                    for el in all_pieces:
+                        if el.player_number != piece.player_number:
+                            if [f,target_rank] in el.attacked_squares:
+                                print(el.name)
+                                return False
+                castle(piece,castling_rook,target_file)
+                switch_turn(piece.player)
+                return True 
+            else:
+                print("king already moved") if  piece.move_history else print(f"rook at {castling_rook.file,castling_rook.rank} already moved")
+                return False
         else:
             return False
     else:
@@ -339,7 +343,10 @@ def trial_move(piece:chess_piece, king:chess_piece, target_file : str, target_ra
             return False 
         else:  
             # if move is 'valid' switch player
+            move = [target_file,target_rank]
+            piece.move_history.append(move)
             switch_turn(piece.player)
+            print(piece.move_history)
             return True
 
 def revert_move(piece:chess_piece,prev_file : str,prev_rank : str, all_pieces:list, capture = None):
