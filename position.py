@@ -295,13 +295,25 @@ def trial_move(piece:chess_piece, king:chess_piece, target_file : str, target_ra
         rook_file = "H" if delta_file < 0 else "A"
         rook_rank = "1" if piece.player_number == 1 else "8"
         for p in all_pieces:
-            if (p.type == "rook" and p.file == rook_file and p.rank == rook_rank):
+            if (p.type == "rook" and p.file == rook_file and p.rank == rook_rank and piece.player == p.player):
                 castling_rook = p
                 print(f"castling rook is {castling_rook.name}: at {castling_rook.file,castling_rook.rank}")
                 break
+        start_index = Files.index(piece.file)
+        end_index = Files.index(target_file)
+        step = -1 if start_index > end_index else 1
+        print(start_index,end_index,step)
         if castling_rook is not None:
+            for f in Files[start_index:end_index + step:step]: # test if any of the kings moving squares is attacked 
+                print(f"tested squares are {f,target_rank}")
+                for el in all_pieces:
+                    if el.player_number != piece.player_number:
+                        if [f,target_rank] in el.attacked_squares:
+                            print(el.name)
+                            return False
             castle(piece,castling_rook,target_file)
             switch_turn(piece.player)
+            return True 
         else:
             return False
     else:
