@@ -22,6 +22,9 @@ class chess_piece:
         self.attacked_squares = []
         self.pseudo_legal_moves = []
         self.move_history = []
+
+        if self.type == "king":
+            self.safe_squares = []
      
     def render_piece(self,font,screen):
         piece = font.render(self.ASCII_value, True, self.color)
