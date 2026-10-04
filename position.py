@@ -285,18 +285,26 @@ def is_king_checked(king:chess_piece, all_pieces : list[chess_piece]) -> list[ch
         return checking_pieces
     return False
 
-def is_checkmate(king: chess_piece, all_pieces :list ):
-    safe_squares = generate_safe_squares(king,all_pieces)
-    attacker_list = is_king_checked(king,all_pieces)
-    print(f"safe squares are {safe_squares} for {king.name}")
-    if not safe_squares and attacker_list:
-        print(attacker_list)
-        if not is_piece_capturable(king, attacker_list,all_pieces):
-            print("not capturable")
-            if not can_block_check(king,attacker_list,all_pieces):
-                print("no piece can block ... checkmate")
-    return False
+def is_checkmate(king: chess_piece, all_pieces: list[chess_piece]):
 
+    safe_squares = generate_safe_squares(king, all_pieces)
+    attacker_list = is_king_checked(king, all_pieces)
+    print(f"safe squares are {safe_squares} for {king.name}")
+    # King isn't in check → not checkmate
+    if not attacker_list:
+        return False
+    # King can escape → not checkmate
+    if safe_squares:
+        return False
+    # Can capture the checking piece?
+    if is_piece_capturable(king, attacker_list, all_pieces):
+        return False
+    print("not capturable")
+    # Can another piece block the check?
+    if can_block_check(king, attacker_list, all_pieces):
+        return False
+    print("no piece can block ... checkmate")
+    return True
 def can_block_check( king: chess_piece, attacking_pieces: list[chess_piece], all_pieces: list[chess_piece] ):
 
     if len(attacking_pieces) != 1:
