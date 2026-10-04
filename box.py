@@ -1,5 +1,6 @@
 
 import pygame
+from pieces import chess_piece
 from position import Files, Ranks
 from position import determine_square_coordinates
 class BOX:
@@ -7,7 +8,7 @@ class BOX:
         self.file = file
         self.rank = rank
         self.color = color
-        self.current_piece = None
+        self.current_piece: chess_piece | None = None
     def render_box(self, screen: pygame.Surface):
         coordinates = determine_square_coordinates(self.file, self.rank)
         pygame.draw.rect(screen, self.color, pygame.Rect(coordinates[0], coordinates[1], 75, 75),3)

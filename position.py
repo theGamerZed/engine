@@ -21,8 +21,8 @@ def determine_square_coordinates(file:str, rank:str):
     y = initial_y + (rank_index * increment)
     return x, y
 
-def determine_piece_in_square(file : str, rank : str, player_pieces :list):
-    for piece in player_pieces:
+def determine_piece_in_square(file : str, rank : str, all_pieces : list[chess_piece]):
+    for piece in all_pieces:
         if piece.file == file and piece.rank == rank:
             return piece
     return None
@@ -35,7 +35,7 @@ def is_valid_square(file : str, rank : str, current_player, all_pieces):
         return True
     return False
 
-def is_path_free(piece:chess_piece,target_file: str, target_rank : str,all_pieces:list):
+def is_path_free(piece:chess_piece,target_file: str, target_rank : str,all_pieces : list[chess_piece]):
     valid = True
     if piece.type == "pawn":
         valid = pawn_move(piece,target_file,target_rank,all_pieces,[(0,1),(0,2),(0,-1),(0,-2)])
@@ -113,13 +113,34 @@ def pawn_move(piece, target_file, target_rank, all_pieces, directions):
 
     return False
 
+def determine_pawn_moves(pawn: chess_piece, all_pieces: list[chess_piece]):
+    moves = []
+
+    direction = -1 if pawn.player == 1 else 1
+    current_file_index = Files.index(pawn.file)
+    current_rank_index = Ranks.index(pawn.rank)
+    # One square forward
+    new_rank_index = current_rank_index + direction
+    if 0 <= new_rank_index < len(Ranks):
+        new_square = [ Files[current_file_index], Ranks[new_rank_index] ]
+        if determine_piece_in_square(new_square[0],new_square[1], all_pieces) is None:
+            moves.append(new_square)
+            # Two squares forward
+            if  (pawn.player_number == 1 and pawn.rank == "2") or(pawn.player_number == 2 and pawn.rank == "7") :
+                double_rank_index = current_rank_index + (2 * direction)
+                double_square = [ Files[current_file_index], Ranks[double_rank_index] ]
+                if determine_piece_in_square(double_square[0],double_square[1], all_pieces ) is None:
+                    moves.append(double_square)
+    print(moves)
+    return moves
+
 def piece_move(piece,target_file,target_rank,all_pieces):
     attacked_squares = determine_attacked_squares(piece,all_pieces)
     if [target_file,target_rank] in attacked_squares:
         return True
     return False
 
-def capture_piece(current_piece :chess_piece, target_piece :chess_piece, all_pieces: list):
+def capture_piece(current_piece :chess_piece, target_piece :chess_piece,all_pieces : list[chess_piece]):
     current_piece.rank = target_piece.rank
     current_piece.file = target_piece.file
 
@@ -128,7 +149,7 @@ def capture_piece(current_piece :chess_piece, target_piece :chess_piece, all_pie
     print(f"{current_piece.name} captured {target_piece.name} on square {target_piece.file,target_piece.rank}")
     return True
 
-def determine_attacked_squares(piece :chess_piece, all_pieces: list):
+def determine_attacked_squares(piece :chess_piece,all_pieces : list[chess_piece]):
     if piece.type == "pawn":
         piece.attacked_squares = pawn_attacks(piece)
 
@@ -223,7 +244,7 @@ def king_attacks(piece: chess_piece):
 
     return attacked
 
-def sliding_attacks(piece: chess_piece, all_pieces:list , directions :list):
+def sliding_attacks(piece: chess_piece, all_pieces : list[chess_piece] , directions :list):
     attacked = []
 
     file_index = Files.index(piece.file)
@@ -253,7 +274,7 @@ def sliding_attacks(piece: chess_piece, all_pieces:list , directions :list):
 
     return attacked
 
-def is_king_checked(king:chess_piece, all_pieces:list) -> list[chess_piece] | Literal[False]:
+def is_king_checked(king:chess_piece, all_pieces : list[chess_piece]) -> list[chess_piece] | Literal[False]:
     checking_pieces = []
     for piece in all_pieces:
         if piece.player != king.player:
@@ -269,28 +290,82 @@ def is_checkmate(king: chess_piece, all_pieces :list ):
     attacker_list = is_king_checked(king,all_pieces)
     print(f"safe squares are {safe_squares} for {king.name}")
     if not safe_squares and attacker_list:
-        if not is_piece_capturable(attacker_list,all_pieces):
-            print("check mate")
-            return True
-        else:
-            for p in attacker_list:
-                print(f"attacking pieces are : {p.name}")
-                print("attacking piece is capturable!!!")
-    #else:
-        # later check if the capturable piece in the 'safe' square is not protected ... if protected it is still checkmate
-        #return True
+        print(attacker_list)
+        if not is_piece_capturable(king, attacker_list,all_pieces):
+            print("not capturable")
+            if not can_block_check(king,attacker_list,all_pieces):
+                print("no piece can block ... checkmate")
     return False
 
-def can_block_check(king: chess_piece,attacking_pieces: list, all_pieces :list ):
-    for attacker in attacking_pieces:
-        for blocking_piece in all_pieces:
-            if not blocking_piece.player == king.player:
-                if blocking_piece.valid_moves in attacker.attacking_squares:
-                    return True
+def can_block_check( king: chess_piece, attacking_pieces: list[chess_piece], all_pieces: list[chess_piece] ):
 
+    if len(attacking_pieces) != 1:
+        return False
+
+    checker = attacking_pieces[0]
+
+    if checker.type in ["knight", "pawn", "king"]:
+        return False
+
+    king_file_index = Files.index(king.file)
+    king_rank_index = Ranks.index(king.rank)
+
+    checker_file_index = Files.index(checker.file)
+    checker_rank_index = Ranks.index(checker.rank)
+
+    delta_file = checker_file_index - king_file_index
+    delta_rank = checker_rank_index - king_rank_index
+
+    # Determine direction
+    if delta_file == 0:
+        file_step = 0
+        rank_step = 1 if delta_rank > 0 else -1
+
+    elif delta_rank == 0:
+        file_step = 1 if delta_file > 0 else -1
+        rank_step = 0
+
+    elif abs(delta_file) == abs(delta_rank):
+        file_step = 1 if delta_file > 0 else -1
+        rank_step = 1 if delta_rank > 0 else -1
+
+    else:
+        return False
+
+    blocking_squares = []
+
+    current_file_index = king_file_index + file_step
+    current_rank_index = king_rank_index + rank_step
+
+    while ( current_file_index != checker_file_index or current_rank_index != checker_rank_index ):
+        blocking_squares.append([ Files[current_file_index], Ranks[current_rank_index] ])
+        current_file_index += file_step
+        current_rank_index += rank_step
+
+    print("Blocking squares:", blocking_squares)
+
+    for blocking_piece in all_pieces:
+
+        if blocking_piece.player != king.player:
+            continue
+
+        if blocking_piece.type == "king":
+            continue
+
+        # candidate_piece_moves = determine_attacked_squares( blocking_piece, all_pieces )
+        if blocking_piece.type == "pawn":
+            candidate_piece_moves = determine_pawn_moves( blocking_piece, all_pieces )
+        else: 
+            candidate_piece_moves = determine_attacked_squares( blocking_piece, all_pieces )
+
+        for square in blocking_squares:
+                if square in candidate_piece_moves:
+                    if trial_move( blocking_piece, king, square[0], square[1], all_pieces ):
+                        print(f"{blocking_piece.name} on {blocking_piece.file,blocking_piece.rank}can block the check")
+                        return True
     return False
 
-def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pieces:list):
+def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pieces : list[chess_piece]):
     if not selected_piece.player.turn:
         print(f"not Player: {selected_piece.player.player_number} turn")
         return
@@ -347,7 +422,7 @@ def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pi
     is_checkmate(opposite_king,all_pieces)
     return None
 
-def trial_move(piece, king, target_file, target_rank, all_pieces):
+def trial_move(piece, king, target_file, target_rank, all_pieces : list[chess_piece]):
     prev_file = piece.file
     prev_rank = piece.rank
     prev_test_capture = None
@@ -375,7 +450,7 @@ def trial_move(piece, king, target_file, target_rank, all_pieces):
     revert_move(piece, prev_file, prev_rank,all_pieces,prev_test_capture)
     return True
         
-def revert_move(piece:chess_piece,prev_file : str,prev_rank : str, all_pieces:list, capture = None ):
+def revert_move(piece:chess_piece,prev_file : str,prev_rank : str, all_pieces : list[chess_piece], capture = None ): # revert move in trail if it is illegal ... and un-capture any captured piece during tests 
     piece.file = prev_file
     piece.rank = prev_rank
     if capture is not None:
@@ -388,11 +463,13 @@ def castle(king :chess_piece,rook: chess_piece, t_file:str):
     offset = -1 if delta_file < 0 else 1
     new_rook_file = Files[Files.index(t_file) + offset]
     rook.file = new_rook_file
+
     king.move_history.append(True)
     rook.move_history.append(True)
+
     return False
 
-def generate_safe_squares(king: chess_piece, all_pieces: list):
+def generate_safe_squares(king: chess_piece,all_pieces : list[chess_piece]):
     king_possible_squares = king_attacks(king)
     king.safe_squares = []
     for square in king_possible_squares:
@@ -411,12 +488,14 @@ def generate_safe_squares(king: chess_piece, all_pieces: list):
 
     return king.safe_squares
 
-def promote_piece(pawn: chess_piece,all_pieces:list):
+def promote_piece(pawn: chess_piece,all_pieces : list[chess_piece]):
 
     return False
 
-def is_piece_capturable(enemy_pieces: list, all_pieces: list):
+def is_piece_capturable(king:chess_piece, enemy_pieces: list,all_pieces : list[chess_piece]):
     if not enemy_pieces:
+        return False
+    if len(enemy_pieces) > 1: # during a double check the king must move ...
         return False
 
     for enemy in enemy_pieces:
@@ -428,9 +507,8 @@ def is_piece_capturable(enemy_pieces: list, all_pieces: list):
             attacked_squares = determine_attacked_squares( friend, all_pieces )
 
             if square in attacked_squares:
-                if friend.type == "king": #check if the king can safely capture this piece
-                    if trial_move(friend,friend,square[0],square[1],all_pieces):
-                        return True
+                if friend == king: #check if the king can safely capture this piece
+                    return trial_move(friend,friend,square[0],square[1],all_pieces)
                 else: # any other piece would sacrifice itself
                     return True
     return False
