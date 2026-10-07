@@ -128,7 +128,7 @@ def determine_pawn_moves(pawn: chess_piece, all_pieces: list[chess_piece]):
                     moves.append(double_square)
     return moves
 
-def can_piece_reach_square(piece,target_file,target_rank,all_pieces):
+def can_piece_reach_square(piece : chess_piece ,target_file : str ,target_rank: str,all_pieces: list[chess_piece]):
     attacked_squares = determine_attacked_squares(piece,all_pieces)
     if [target_file,target_rank] in attacked_squares:
         return True
@@ -390,6 +390,12 @@ def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pi
     if not trial_move(selected_piece,current_king,highlighter_target.file,highlighter_target.rank,all_pieces):
         return False
     enemy_piece = determine_piece_in_square( highlighter_target.file, highlighter_target.rank, all_pieces)
+    if (current_king.player_number == 1 and highlighter_target.rank =="8") or (current_king.player_number == 2 and highlighter_target.rank =="1"):
+        if selected_piece.type == "pawn":
+            promote_piece(selected_piece,highlighter_target.rank,all_pieces)
+
+
+
 
     delta_file = Files.index(selected_piece.file) - Files.index(highlighter_target.file)
     if selected_piece.type == "king" and abs(delta_file) == 2: # Handle Castling of the king 
@@ -501,7 +507,7 @@ def generate_safe_squares(king: chess_piece,all_pieces : list[chess_piece]):
 
     return king.safe_squares
 
-def promote_piece(pawn: chess_piece,all_pieces : list[chess_piece],type = "queen"):
+def promote_piece(pawn: chess_piece,target_rank: str,all_pieces : list[chess_piece],type = "queen"):
     ascii_value = None
     if type == "queen":
         ascii_value = "♛"
@@ -512,14 +518,16 @@ def promote_piece(pawn: chess_piece,all_pieces : list[chess_piece],type = "queen
     elif type == "rook":
         ascii_value  = "♜"
 
-    new_piece = chess_piece(type,f"new_{type}",ascii_value,pawn.player,pawn.file,pawn.rank,True)
+    new_piece = chess_piece(type,f"new_{type}",ascii_value,pawn.player,pawn.file,target_rank,True)
+    current_piece_index = all_pieces.index(pawn)
+    all_pieces.pop(current_piece_index)
     all_pieces.append(new_piece)
     return True
 
 def is_piece_capture_able(king:chess_piece, enemy_pieces: list[chess_piece], all_pieces : list[chess_piece]):
     if not enemy_pieces:
         return False
-    if len(enemy_pieces) > 1: # during a double check the king must move ...
+    if len(enemy_pieces) > 1: # during a double check the king MUST move ...
         return False
 
     for enemy in enemy_pieces:
@@ -542,5 +550,5 @@ def end_game(king: chess_piece,all_pieces : list[chess_piece]):
     else:
         winner = next(piece for piece in all_pieces if piece.player_number == 1)
     print(f"Player {winner.player_number} wins!")
-    pygame.quit()
-    exit()
+    # pygame.quit()
+    # exit()

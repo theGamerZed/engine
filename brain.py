@@ -20,14 +20,14 @@ def initialize_player_pieces(player: Player):
         all_player_pieces.append(black_king)
         bishop_2 = ChessPieces("bishop","black_Bishop_2", "♝", player_2, "F", "8")
         all_player_pieces.append(bishop_2)
-        knight_2 = ChessPieces("knight", "black_Knight_2", "♞", player_2, "G", "8")
-        all_player_pieces.append(knight_2)
-        rook_2 = ChessPieces("rook","black_Rook_2", "♜", player_2, "H", "8")
-        all_player_pieces.append(rook_2)
-        for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = ChessPieces("pawn","black_Pawn", "♟", player_2, Files[file], "7")
-            all_player_pieces.append(pawn)
-        return None
+        # knight_2 = ChessPieces("knight", "black_Knight_2", "♞", player_2, "G", "8")
+        # all_player_pieces.append(knight_2)
+        # rook_2 = ChessPieces("rook","black_Rook_2", "♜", player_2, "H", "8")
+        # all_player_pieces.append(rook_2)
+        # for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
+        #     pawn = ChessPieces("pawn","black_Pawn", "♟", player_2, Files[file], "7")
+        #     all_player_pieces.append(pawn)
+        # return None
     elif player.player_number == 1:
         rook_1 = ChessPieces("rook","white_Rook_1", "♜", player_1, "A", "1")
         all_player_pieces.append(rook_1)
@@ -46,7 +46,7 @@ def initialize_player_pieces(player: Player):
         rook_2 = ChessPieces("rook", "white_Rook_2", "♜", player_1, "H", "1")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = ChessPieces("pawn", "white_Pawn", "♟", player_1, Files[file], "2")
+            pawn = ChessPieces("pawn", "white_Pawn", "♟", player_1, Files[file], "6")
             all_player_pieces.append(pawn)
         return None
     
