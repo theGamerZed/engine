@@ -1,18 +1,13 @@
 import pygame
 from player import Player
-Files = ["A", "B", "C", "D", "E", "F", "G", "H"]
-Ranks = ["8", "7", "6", "5", "4", "3", "2", "1"]
-increment = 75
-initial_x = 340
-initial_y = 60
-padding = 10
-class chess_piece:
-    def __init__(self, type ,name, ASCII_value, Player:Player,file, rank,selected = False):
+from constants import Files,Ranks,increment,initial_x,initial_y
+class ChessPiece:
+    def __init__(self, type ,name, ASCII_value, player:Player,file, rank,selected = False):
         self.name = name
         self.ASCII_value = ASCII_value
-        self.player = Player
-        self.color = Player.color
-        self.player_number = Player.player_number
+        self.player = player
+        self.color = player.color
+        self.player_number = player.player_number
         self.rank = rank
         self.file = file
         self.type = type

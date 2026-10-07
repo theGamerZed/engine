@@ -1,9 +1,9 @@
 
 import pygame
-from pieces import chess_piece
+from pieces import ChessPiece as chess_piece
 from position import Files, Ranks
 from position import determine_square_coordinates
-class BOX:
+class Box:
     def __init__(self, file:str , rank:str , color: tuple[int, int, int]):
         self.file = file
         self.rank = rank

@@ -1,62 +1,63 @@
 from position import determine_chess_coordinates, determine_piece_in_square,move_to_selected_square,determine_attacked_squares
-from position import Files,Ranks
-from box import BOX
+from constants import Files,Ranks,increment,initial_x,initial_y
+from box import Box
 from player import Player,player_2,player_1
 import pygame
-import pieces
+from pieces import ChessPiece as ChessPieces
 # helper functions
 all_player_pieces = []
 def initialize_player_pieces(player: Player):
     if player.player_number == 2:
-        rook_1 = pieces.chess_piece("rook","black_Rook_1", "♜", player_2, "A", "8")
+        rook_1 = ChessPieces("rook","black_Rook_1", "♜", player_2, "A", "8")
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("knight","black_Knight_1", "♞", player_2, "B", "8")
+        knight_1 = ChessPieces("knight","black_Knight_1", "♞", player_2, "B", "8")
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("bishop","black_Bishop_1", "♝", player_2, "C", "8")
+        bishop_1 = ChessPieces("bishop","black_Bishop_1", "♝", player_2, "C", "8")
         all_player_pieces.append(bishop_1)
-        black_queen = pieces.chess_piece("queen","black_Queen", "♛", player_2, "D", "8")
+        black_queen = ChessPieces("queen","black_Queen", "♛", player_2, "D", "8")
         all_player_pieces.append(black_queen)
-        black_king = pieces.chess_piece("king","black_King", "♚", player_2, "E", "8")
+        black_king = ChessPieces("king","black_King", "♚", player_2, "E", "8")
         all_player_pieces.append(black_king)
-        bishop_2 = pieces.chess_piece("bishop","black_Bishop_2", "♝", player_2, "F", "8")
+        bishop_2 = ChessPieces("bishop","black_Bishop_2", "♝", player_2, "F", "8")
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("knight", "black_Knight_2", "♞", player_2, "G", "8")
+        knight_2 = ChessPieces("knight", "black_Knight_2", "♞", player_2, "G", "8")
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("rook","black_Rook_2", "♜", player_2, "H", "8")
+        rook_2 = ChessPieces("rook","black_Rook_2", "♜", player_2, "H", "8")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = pieces.chess_piece("pawn","black_Pawn", "♟", player_2, Files[file], "7")
+            pawn = ChessPieces("pawn","black_Pawn", "♟", player_2, Files[file], "7")
             all_player_pieces.append(pawn)
         return None
     elif player.player_number == 1:
-        rook_1 = pieces.chess_piece("rook","white_Rook_1", "♜", player_1, "A", "1")
+        rook_1 = ChessPieces("rook","white_Rook_1", "♜", player_1, "A", "1")
         all_player_pieces.append(rook_1)
-        knight_1 = pieces.chess_piece("knight","white_Knight_1", "♞", player_1, "B", "1")
+        knight_1 = ChessPieces("knight","white_Knight_1", "♞", player_1, "B", "1")
         all_player_pieces.append(knight_1)
-        bishop_1 = pieces.chess_piece("bishop", "white_Bishop_1", "♝", player_1, "C", "1")
+        bishop_1 = ChessPieces("bishop", "white_Bishop_1", "♝", player_1, "C", "1")
         all_player_pieces.append(bishop_1)
-        white_queen = pieces.chess_piece("queen", "white_Queen", "♛", player_1, "D", "1")
+        white_queen = ChessPieces("queen", "white_Queen", "♛", player_1, "D", "1")
         all_player_pieces.append(white_queen)
-        white_king = pieces.chess_piece("king", "white_King", "♚", player_1, "E", "1")
+        white_king = ChessPieces("king", "white_King", "♚", player_1, "E", "1")
         all_player_pieces.append(white_king)
-        bishop_2 = pieces.chess_piece("bishop", "white_Bishop_2", "♝", player_1, "F", "1")
+        bishop_2 = ChessPieces("bishop", "white_Bishop_2", "♝", player_1, "F", "1")
         all_player_pieces.append(bishop_2)
-        knight_2 = pieces.chess_piece("knight", "white_Knight_2", "♞", player_1, "G", "1")
+        knight_2 = ChessPieces("knight", "white_Knight_2", "♞", player_1, "G", "1")
         all_player_pieces.append(knight_2)
-        rook_2 = pieces.chess_piece("rook", "white_Rook_2", "♜", player_1, "H", "1")
+        rook_2 = ChessPieces("rook", "white_Rook_2", "♜", player_1, "H", "1")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = pieces.chess_piece("pawn", "white_Pawn", "♟", player_1, Files[file], "2")
+            pawn = ChessPieces("pawn", "white_Pawn", "♟", player_1, Files[file], "2")
             all_player_pieces.append(pawn)
         return None
+    
 initialize_player_pieces(player_1)
 initialize_player_pieces(player_2)
 # Global variables
 screen = pygame.display.set_mode((1280, 720))
 pygame.font.init()
 font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
-initial_selected_piece = ["E", "2"]  # Example initial selected piece, replace with actual logic to determine selected piece
-selected_square = BOX(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
+initial_selected_piece = ["E", "2"]  # initial selected piece 
+selected_square = Box(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
 selected_square.current_piece = determine_piece_in_square(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
 if selected_square.current_piece is not None:
     selected_square.current_piece.selected = True
@@ -66,9 +67,6 @@ clock = pygame.time.Clock()
 board_width = 600
 center_x = screen.get_width() / 2
 center_y = screen.get_height() / 2
-increment = 75
-initial_x = 340
-initial_y = 60
 running = True
 
 while running:
