@@ -2,8 +2,9 @@ from position import determine_chess_coordinates, determine_piece_in_square,move
 from constants import Files,Ranks,increment,initial_x,initial_y
 from box import Box
 from player import Player,player_2,player_1
-import pygame
 from pieces import ChessPiece as ChessPieces
+import pygame
+import time
 # helper functions
 all_player_pieces = []
 def initialize_player_pieces(player: Player):
@@ -46,7 +47,7 @@ def initialize_player_pieces(player: Player):
         rook_2 = ChessPieces("rook", "white_Rook_2", "♜", player_1, "H", "1")
         all_player_pieces.append(rook_2)
         for file in range(Files.index("A"), Files.index("H")+1): #+1 to include the last file "H"
-            pawn = ChessPieces("pawn", "white_Pawn", "♟", player_1, Files[file], "6")
+            pawn = ChessPieces("pawn", "white_Pawn", "♟", player_1, Files[file], "5")
             all_player_pieces.append(pawn)
         return None
     
@@ -57,48 +58,77 @@ screen = pygame.display.set_mode((1280, 720))
 pygame.font.init()
 font = pygame.font.SysFont("Noto Sans Symbols 2", 50 )
 initial_selected_piece = ["E", "2"]  # initial selected piece 
-selected_square = Box(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
-selected_square.current_piece = determine_piece_in_square(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
-if selected_square.current_piece is not None:
-    selected_square.current_piece.selected = True
-else:
-    print("No piece found on this square")
+selection_box = Box(initial_selected_piece[0], initial_selected_piece[1], (0,250,0))
+selection_box.current_piece = determine_piece_in_square(initial_selected_piece[0],initial_selected_piece[1],all_player_pieces)
+
 clock = pygame.time.Clock()
 board_width = 600
 center_x = screen.get_width() / 2
 center_y = screen.get_height() / 2
 running = True
+last_click_time = 0
+double_click_threshold = 0.9
+selected_piece = None
+
+# Double-click tracking variables
+last_clicked_file = None
+last_clicked_rank = None
 
 while running:
+
     # poll for events
     # pygame.QUIT event means the user clicked X to close your window
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            current_file, current_rank = determine_chess_coordinates(event.pos[0], event.pos[1])
+            if current_file is not None and current_rank is not None:
+                selected_piece = determine_piece_in_square(current_file,current_rank,all_player_pieces)
             if event.button == 1:  # Left click
-                current_file, current_rank = determine_chess_coordinates(event.pos[0], event.pos[1])
-                if current_file is not None and current_rank is not None:
-                    selected_square.file = Files[Files.index(current_file)]
-                    selected_square.rank = Ranks[Ranks.index(current_rank)]
-                    selected_piece = determine_piece_in_square(current_file,current_rank,all_player_pieces)
-                    if selected_piece is not None:
-                        selected_piece.selected = True
-                        selected_square.current_piece = selected_piece                        
+                current_time = time.perf_counter()
+                diff = current_time - last_click_time
+                
+                # Check if this click is on a valid board square
+                click_is_valid = current_file is not None and current_rank is not None
+
+                if 0 < diff < double_click_threshold and click_is_valid:
+                    print("Double click detected - moving piece")
+                    # Double click: move the currently selected piece to this square
+                    if selection_box.current_piece is not None:
+                        selection_box.file = Files[Files.index(current_file)]
+                        selection_box.rank = Ranks[Ranks.index(current_rank)]
+                        if move_to_selected_square(selection_box.current_piece, selection_box, all_player_pieces):
+                            selection_box.full = False
+                    last_click_time = 0  # Reset after detecting double-click
+
+                else:
+                    print("Single click - selecting piece")
+                    # Single click: select the piece at this square immediately
+                    if click_is_valid:
+                        last_click_time = current_time
+                        last_clicked_file = current_file
+                        last_clicked_rank = current_rank
+                        selection_box.file = Files[Files.index(current_file)]
+                        selection_box.rank = Ranks[Ranks.index(current_rank)]
+                        if selected_piece is not None and not selection_box.full:
+                            selection_box.current_piece = selected_piece   
+                            selection_box.full = True
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 running = False
             elif event.key == pygame.K_UP:
-                selected_square.move_up()
+                selection_box.move_up()
             elif event.key == pygame.K_DOWN:
-                    selected_square.move_down()
+                    selection_box.move_down()
             elif event.key == pygame.K_LEFT:
-                selected_square.move_left()
+                selection_box.move_left()
             elif event.key == pygame.K_RIGHT:
-                selected_square.move_right()
+                selection_box.move_right()
             elif event.key == pygame.K_RETURN:
-                if selected_square.current_piece is not None:
-                    move_to_selected_square( selected_square.current_piece, selected_square, all_player_pieces )
+                if selection_box.current_piece is not None:
+                    move_to_selected_square( selection_box.current_piece, selection_box, all_player_pieces )
                 
     # fill the screen with a color to wipe away anything from last frame
     screen.fill((102,51, 0))
@@ -114,7 +144,7 @@ while running:
                 color = (190, 202, 193)
             pygame.draw.rect(screen,color,pygame.Rect(x, y, increment, increment))
 
-    selected_square.render_box(screen) # render the selected square once on top of the board
+    selection_box.render_box(screen) # render the selected square once on top of the board
 
     for piece in all_player_pieces:
             piece.render_piece(font, screen)

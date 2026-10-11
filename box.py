@@ -9,6 +9,7 @@ class Box:
         self.rank = rank
         self.color = color
         self.current_piece: chess_piece | None = None
+        self.full  = False
     def render_box(self, screen: pygame.Surface):
         coordinates = determine_square_coordinates(self.file, self.rank)
         pygame.draw.rect(screen, self.color, pygame.Rect(coordinates[0], coordinates[1], 75, 75),3)

@@ -394,9 +394,6 @@ def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pi
         if selected_piece.type == "pawn":
             promote_piece(selected_piece,highlighter_target.rank,all_pieces)
 
-
-
-
     delta_file = Files.index(selected_piece.file) - Files.index(highlighter_target.file)
     if selected_piece.type == "king" and abs(delta_file) == 2: # Handle Castling of the king 
         castling_rook = None
@@ -434,7 +431,7 @@ def move_to_selected_square(selected_piece:chess_piece,highlighter_target,all_pi
         selected_piece.move_history.append(True) # to record pieces moves ... later serves as a test to determine if king or rook has moved
     switch_turn(selected_piece.player)
     is_checkmate(opposite_king,all_pieces)
-    return False
+    return True
 
 def trial_move(piece, king, target_file, target_rank, all_pieces : list[chess_piece]):
     prev_file = piece.file

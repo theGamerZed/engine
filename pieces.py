@@ -11,7 +11,6 @@ class ChessPiece:
         self.rank = rank
         self.file = file
         self.type = type
-        self.selected = selected
         self.special = False
         self.valid_moves = []
         self.attacked_squares = []
